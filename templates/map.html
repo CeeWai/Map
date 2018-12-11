@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title>Map</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/menu.css">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.min.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.css' type='text/css' />
+<script src='https://unpkg.com/es6-promise@4.2.4/dist/es6-promise.auto.min.js'></script>
+<script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
+<script src='https://unpkg.com/mapbox@1.0.0-beta7/dist/mapbox-sdk.min.js'></script>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+ <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+
+</head>
+
+{% block body %}
+<body>
+<div id="white_loading" style="background: white; text-align: center; height: 100%; width: 100%; display: table; z-index: 10000000;">
+	<div id="loading_container" style="z-index: 10000000000000000000000000;">
+	  <span></span>
+	  <span></span>
+	  <span></span>
+	  <p>LOADING</p>
+	</div>
+</div>
+
+<!-- Menu -->
+<div class="primary-nav">
+
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="/dashboard">Profile</a>
+					<span class="icon">
+						{% if current_user.is_authenticated %}
+							<img src="/static/{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
+						{% else %}
+						    <i class="fas fa-user"></i>
+						{% endif %}
+					</span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+							<li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+				<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				<li><a href="/">Another Link</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
+
+<div id='map'></div>
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.NsvAT34SplBxuUvZsvUSKA';
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/light-v9',
+  center: [103.82764112, 1.369883],
+  zoom: 12.0
+});
+
+map.addControl(new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken
+}));
+
+// Add geolocate control to the map.
+map.addControl(new mapboxgl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    trackUserLocation: true
+}));
+
+var geojson = {
+  type: 'FeatureCollection',
+	features:
+	{{ event_locations|safe }}
+  //features: [
+  //  {
+  //    type: 'Feature',
+  //  geometry: {
+  //    type: 'Point',
+  //    coordinates: [103.82764112, 1.369883]
+  //  },
+  //  properties: {
+  //    title: 'Mapbox',
+  //    description: 'Singapore, Singapore'
+  //  }
+
+//  }]
+};
+
+//L.mapbox.featureLayer({{ event_locations|safe }} ).addTo(map);
+
+// Test Marker (Hover)
+map.on('load', function() {
+    map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png', function(error, image) {
+        if (error) throw error;
+        map.addImage('cat', image);
+        map.addLayer({
+				"id": "points",
+				"type": "symbol",
+				"source": {
+					"type": "geojson",
+					"data": {
+						"type": "FeatureCollection",
+						"features":
+							[{
+							"type": "Feature",
+							"properties": {
+								"description": '<figure class="snip1559"><div class="profile-image"><img src="http://pm1.narvii.com/5996/19c1ec00df5e690a080025bf9b75d1319d564249_00.jpg" alt="profile-sample2" /></div><figcaption><h3>Placeholder Name</h3><h5>Placeholder Rank</h5><p>Place holder for description?</p></figcaption></figure>',
+								"icon": "cat"
+							},
+							"geometry": {
+								"type": "Point",
+								"coordinates": [103.72764112, 1.369883]
+							},
+						}]
+					}
+				},
+				"layout": {
+					"icon-image": "cat",
+					"icon-size": 0.20
+				}
+			});
+		});
+	});
+    // Create a popup, but don't add it to the map yet.
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
+// add markers to map
+    geojson.features.forEach(function (marker) {
+
+        // create a HTML element for each feature
+        var el = document.createElement('div');
+        el.className = 'marker';
+		{% set count = 0 %}
+		//el.style.backgroundImage = "url(/static/{{event_markers_image[count]}})";
+		el.style.backgroundImage = 'url(/static/' + marker.properties.event_image + ')';
+		{% set count = count + 1 %}
+
+        // make a marker for each feature and add to the map
+        new mapboxgl.Marker(el)
+            .setLngLat(marker.geometry.coordinates)
+            .addTo(map);
+
+        new mapboxgl.Marker(el)
+            .setLngLat(marker.geometry.coordinates)
+            .setPopup(new mapboxgl.Popup({offset: 25}) // add popups
+                .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>'))
+            .addTo(map);
+    });
+
+    map.on('mouseenter', 'points', function (e) {
+        // Change the cursor style as a UI indicator.
+        map.getCanvas().style.cursor = 'pointer';
+
+        var coordinates = e.features[0].geometry.coordinates.slice();
+        var description = e.features[0].properties.description;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup.setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'points', function () {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+
+
+    $('.nav-toggle').click(function (e) {
+        e.preventDefault();
+        $("html").toggleClass("openNav");
+        $(".nav-toggle").toggleClass("active");
+
+    });
+
+var query = "Ang Moh Kio Avenue 5 Block 522 560522";
+
+var mapboxClient = new MapboxClient(mapboxgl.accessToken);
+mapboxClient.geocodeForward(query, { limit: 1 }, function(err, res) {
+
+    var queryCoords = res.features[0].geometry.coordinates;
+
+    console.log(queryCoords)
+
+});
+
+setTimeout(function() {
+    $(".mapboxgl-ctrl-geolocate").click();
+},2500);
+
+
+setTimeout(function() {
+    $('#white_loading').hide();
+    $('#loading_container').hide();
+	$('#loading_container span').hide();
+	$('#map').show();
+	$('.primary-nav').show();
+}, 3000);
+
+$('#map').hide();
+$('.primary-nav').hide();
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.5/velocity.js"></script>
+
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Join Events</title>
+    <link rel="stylesheet" href="/static/joinEvents.css">
+    <link rel="stylesheet" href="/static/menu.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+</head>
+<div>
+<!-- Menu -->
+<div class="primary-nav">
+
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="/dashboard">Profile</a>
+					<span class="icon">
+						{% if current_user.is_authenticated %}
+							<img src="/static/{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
+						{% else %}
+						    <i class="fas fa-user"></i>
+						{% endif %}
+					</span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+                            <li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+				<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				<li><a href="/">Another Link</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="portfolioFilter clearfix">
+        <a href="#" data-filter="*" class="current">New</a>
+        <a href="#" data-filter=".webTemplates">Discover</a>
+        <a href="#" data-filter=".logos">Friend's Events</a>
+        <a href="#" data-filter=".drawings">Attending</a>
+      </div>
+    </div>
+{% if eventList|length > 0 %}
+    {% for events in eventList %}
+        <div class="container">
+
+      <div class="card-media">
+          <!-- media container -->
+            <div class="card-media-object-container">
+              <div class="card-media-object" style="background-image: url(/static/{{events.event_image}});"></div>
+              {% if events.owner_id == current_user.id %}
+                <span style="z-index:999;" class="card-media-object-tag subtle"><a style="z-index:999;" href='/joinEvents/delEvent/{{ events.id }}'>Delete <i class="far fa-trash-alt"></i></a></span>
+                <span style="z-index:999;" class="card-media-object-tag subtle edit_event"><a style="z-index:999;" href='/joinEvents/editEvents/{{ events.id }}'>Edit <i class="far fa-edit"></i></a></span>
+              {% endif %}
+              <ul class="card-media-object-social-list">
+              {% if events.subscribers.all()|length < 5 %}
+                  {% for sub in events.subscribers.all() %}
+                        <li>
+                            <img src="/static/{{ sub.image_file }}" class="" style="width: 100%;">
+                        </li>
+                  {% endfor %}
+              {% else %}
+                  {% for j in range(4) %}
+                    <li>
+                        <img src="/static/{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
+                        <li class="card-media-object-social-list-item-additional">
+                            <span>+{{ events.subscribers.all()|length - 4 }}</span>
+                        </li>
+                    </li>
+                  {% endfor %}
+              {% endif %}
+              </ul>
+            </div>
+            <!-- body container -->
+            <div class="card-media-body">
+              <div class="card-media-body-top">
+                <span class="subtle">{{ events.start_date }}-{{ events.end_date }}</span>
+                <div class="card-media-body-top-icons u-float-right">
+
+                </div>
+              </div>
+              <span class="card-media-body-heading">{{ events.desc }}</span>
+              <div class="card-media-body-supporting-bottom">
+                <span class="card-media-body-supporting-bottom-text subtle">{{ events.area }}</span>
+                <span class="card-media-body-supporting-bottom-text subtle u-float-right">{{ events.title }}</span>
+              </div>
+              <div class="card-media-body-supporting-bottom card-media-body-supporting-bottom-reveal">
+                <span class="card-media-body-supporting-bottom-text subtle">#Music #Party</span>
+                 {% if events.owner_id != current_user.id %}
+                     {% if current_user not in events.subscribers.all() %}
+                        <a href="/joinEvents/jointheparty/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">JOIN NOW!</a>
+                     {% else %}
+                        <a href="/joinEvents/unattend/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">UNATTEND</a>
+                     {% endif %}
+                  {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <h4 style="margin-left:10em;">There aren't any events yet.</h4>
+{% endif %}
+<script>
+$('.portfolioFilter a').click(function() {
+    $('.portfolioFilter .current').removeClass('current');
+    $(this).addClass('current');
+});
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+  </div>
+</div>
+</body>
+</html>
