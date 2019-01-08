@@ -76,6 +76,36 @@
         <a href="#" data-filter=".drawings">Attending</a>
       </div>
     </div>
+
+      <div class="cd-popup" role="alert" style="z-index: 9999;">
+        <div class="cd-popup-container">
+            {% if firstEvent.subscribers.all()|length == 0 %}
+                <p>This is where the people attending will show up :D</p>
+            {% else %}
+                {% for subber in firstEvent.subscribers.all() %}
+                    <div class='card'>
+                      <div id='left' style="background-image: url(/static/{{ subber.image_file }});"></div>
+                      <div id='right'>
+                        <span class='username'>{{ subber.username }}</span>
+                        {{ subber.email }}
+                        <p style='color: rgba(0,0,0,0.5); padding: 0 !important; '>
+                          Posts:
+                          <span class='right'>259</span>
+                          <br>
+                          Threads:
+                          <span class='right'>14</span>
+                          <br>
+                          Reputation:
+                          <span class='right'>5</span>
+                        </p>
+                      </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <a href="#0" class="cd-popup-close img-replace">Close</a>
+        </div> <!-- cd-popup-container -->
+    </div> <!-- cd-popup -->
+
 {% if eventList|length > 0 %}
     {% for events in eventList %}
         <div class="container">
@@ -83,11 +113,15 @@
       <div class="card-media">
           <!-- media container -->
             <div class="card-media-object-container">
+                <span class="cd-popup-trigger card-media-object-tag subtle" style="background-color: white; z-index: 999;">
+                    <a href="/joinEvents/attendingList/{{ events.id }}" style="text-decoration: none; z-index: 999;">?</a>
+                </span>
               <div class="card-media-object" style="background-image: url(/static/{{events.event_image}});"></div>
               {% if events.owner_id == current_user.id %}
                 <span style="z-index:999;" class="card-media-object-tag subtle"><a style="z-index:999;" href='/joinEvents/delEvent/{{ events.id }}'>Delete <i class="far fa-trash-alt"></i></a></span>
                 <span style="z-index:999;" class="card-media-object-tag subtle edit_event"><a style="z-index:999;" href='/joinEvents/editEvents/{{ events.id }}'>Edit <i class="far fa-edit"></i></a></span>
               {% endif %}
+
               <ul class="card-media-object-social-list">
               {% if events.subscribers.all()|length < 5 %}
                   {% for sub in events.subscribers.all() %}
@@ -99,12 +133,13 @@
                   {% for j in range(4) %}
                     <li>
                         <img src="/static/{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
-                        <li class="card-media-object-social-list-item-additional">
-                            <span>+{{ events.subscribers.all()|length - 4 }}</span>
-                        </li>
                     </li>
                   {% endfor %}
+                    <li class="card-media-object-social-list-item-additional">
+                        <span>+{{ events.subscribers.all()|length - 4 }}</span>
+                    </li>
               {% endif %}
+
               </ul>
             </div>
             <!-- body container -->
@@ -143,6 +178,39 @@ $('.portfolioFilter a').click(function() {
     $('.portfolioFilter .current').removeClass('current');
     $(this).addClass('current');
 });
+
+$(document).ready(function($) {
+    //open popup
+    {% if theOpen == True %}
+        $('.cd-popup').addClass('is-visible');
+    {%endif%}
+});
+
+
+
+jQuery(document).ready(function($){
+	/*open popup
+	$('.cd-popup-trigger').on('click', function(event){
+		event.preventDefault();
+		$('.cd-popup').addClass('is-visible');
+	});
+	*/
+
+	//close popup
+	$('.cd-popup').on('click', function(event){
+		if( $(event.target).is('.cd-popup-close') || $(event.target).is('.cd-popup') ) {
+			event.preventDefault();
+			$(this).removeClass('is-visible');
+		}
+	});
+	//close popup when clicking the esc keyboard button
+	$(document).keyup(function(event){
+    	if(event.which=='27'){
+    		$('.cd-popup').removeClass('is-visible');
+	    }
+    });
+});
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>

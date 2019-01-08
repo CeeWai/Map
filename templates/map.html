@@ -17,6 +17,8 @@
 <script src='https://unpkg.com/mapbox@1.0.0-beta7/dist/mapbox-sdk.min.js'></script>
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
  <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<link type="text/css" rel="stylesheet" href="//pubnub.github.io/eon/v/eon/1.0.0/eon.css"/>
+
 
 </head>
 
@@ -89,17 +91,41 @@
 
 </div>
 <!-- /Menu -->
-
 <div id='map'></div>
 <script>
 
+	/*
+var pubnub = new PubNub({
+  publishKey: 'pub-c-75d42be8-27dc-4697-9155-6e212a2c1e58',
+  subscribeKey: 'sub-c-15ab95ca-0e54-11e9-82f7-5edfbb0294f1'
+});
+*/
+
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.NsvAT34SplBxuUvZsvUSKA';
+
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/light-v9',
   center: [103.82764112, 1.369883],
   zoom: 12.0
 });
+
+/*
+var map = eon.map({
+	container: 'map',
+  style: 'mapbox://styles/mapbox/light-v9',
+  center: [103.82764112, 1.369883],
+  zoom: 12.0,
+  id: 'map',
+  mbId: 'cjny2z6cf16l72sr17dby0jiv',
+  mbToken: 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.NsvAT34SplBxuUvZsvUSKA',
+  channels: ['eon-map-multiple'],
+  pubnub: pubnub,
+  message: function (data) {
+    map.setView(data[3].latlng, 13);
+  }
+});
+*/
 
 map.addControl(new MapboxGeocoder({
     accessToken: mapboxgl.accessToken
@@ -261,6 +287,8 @@ $('.primary-nav').hide();
 
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.5/velocity.js"></script>
+<script type="text/javascript" src="//pubnub.github.io/eon/v/eon/1.0.0/eon.js"></script>
+
 
 {% endblock %}
 </body>

@@ -224,7 +224,8 @@ def dashboard():
 @login_required
 def joinEvents():
     eventList = db.session.query(Event).all()
-    return render_template('joinEvents.html', eventList=eventList)
+    firstEvent = Event.query.first()
+    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent)
 
 
 @app.route('/joinEvents/delEvent/<eventid>')
@@ -285,5 +286,14 @@ def unattendEvent(eventid):
     return redirect(url_for('joinEvents'))
 
 
+@app.route('/joinEvents/attendingList/<eventid>')
+def showList(eventid):
+    eventid = int(eventid)
+    eventList = db.session.query(Event).all()
+    firstEvent = Event.query.filter_by(id=eventid).first()
+    theOpen = True
+    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, theOpen=theOpen)
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port="80")
