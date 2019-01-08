@@ -1,1 +1,1 @@
-web: gunicorn Map:ceewai-app
+web: gunicorn Map:app
