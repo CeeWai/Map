@@ -35,7 +35,7 @@ Dashboard
 					<a href="/dashboard">Profile</a>
 					<span class="icon">
 						{% if current_user.is_authenticated %}
-							<img src="/static/{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
+							<img src="{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
 						{% else %}
 						    <i class="fas fa-user"></i>
 						{% endif %}
@@ -103,7 +103,7 @@ Dashboard
 
           <div class="row placeholders">
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="/static/{{ image_file }}" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <img src="{{ image_file }}" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
               <h4>Label</h4>
               <span class="text-muted">Something else</span>
             </div>

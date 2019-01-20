@@ -13,6 +13,16 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from geojson import Point, Feature, FeatureCollection
 from mapbox import Geocoder
+from flask_dance.contrib.twitter import make_twitter_blueprint, twitter
+from flask_dance.contrib.github import make_github_blueprint, github
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+from flask_dance.consumer.backend.sqla import OAuthConsumerMixin, SQLAlchemyBackend
+from flask_dance.consumer import oauth_authorized
+from sqlalchemy.orm.exc import NoResultFound
+
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -21,7 +31,9 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.session_protection = "strong"
 ACCESS_KEY = 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.NsvAT34SplBxuUvZsvUSKA'
+
 
 subs = db.Table('subs',
     db.Column('id', db.Integer, db.ForeignKey('user.id')),
@@ -29,12 +41,91 @@ subs = db.Table('subs',
 )
 
 
+twitter_blueprint = make_twitter_blueprint(api_key='', api_secret='')
+
+github_blueprint = make_github_blueprint(client_id='461d29fc867322082b41', client_secret='4d1bb977e8ab2a65700f35a739191651dd1ccbeb')
+
+google_blueprint = make_google_blueprint(client_id='1017274687523-9tpt3p5ulut97imugt8nbmp9s3i40059.apps.googleusercontent.com',
+client_secret='2-HFuLG07YIcULFlkxDZ6taj')
+
+app.register_blueprint(twitter_blueprint, url_prefix='/twitter_login')
+
+app.register_blueprint(github_blueprint, url_prefix='/github_login')
+
+app.register_blueprint(google_blueprint, url_prefix='/google_login')
+
+
+@app.route('/google')
+def google_login():
+    if not google.authorized:
+        return redirect(url_for('google.login'))
+
+    account_info = google.get('/user')
+    account_info_json = account_info.json()
+
+    return '<h1> Your Google name is {}'.format(account_info_json['login'])
+
+
+@oauth_authorized.connect_via(google_blueprint)
+def google_logged_in(blueprint, token):
+    account_info = blueprint.session.get("/oauth2/v2/userinfo")
+    if account_info.ok:
+        account_info_json = account_info.json()
+        #to-fix
+        #email = account_info_json['email']
+        image_file = account_info_json['picture']
+        username = account_info_json['name']
+        query = User.query.filter_by(username=username)
+        try:
+            user = query.one()
+        except NoResultFound:
+            user = User(image_file=image_file, username=username)
+            db.session.add(user)
+            db.session.commit()
+
+        login_user(user, remember=True)
+
+
+@app.route('/github')
+def github_login():
+    if not github.authorized:
+        return redirect(url_for('github.login'))
+
+    account_info = github.get('/user')
+    account_info_json = account_info.json()
+
+    return '<h1> Your Github name is {}'.format(account_info_json['login'])
+
+
+@oauth_authorized.connect_via(github_blueprint)
+def github_logged_in(blueprint, token):
+
+    account_info = blueprint.session.get('/user')
+
+    if account_info.ok:
+        account_info_json = account_info.json()
+        username = account_info_json['login']
+        email = account_info_json['email']
+        image_file = account_info_json['avatar_url']
+
+        query = User.query.filter_by(username=username)
+
+        try:
+            user = query.one()
+        except NoResultFound:
+            user = User(username=username, email=email, image_file=image_file)
+            db.session.add(user)
+            db.session.commit()
+
+        login_user(user)
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True, nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    password = db.Column(db.String(80), nullable=False)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(50), unique=True)
+    image_file = db.Column(db.String(20), default='https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1-744x744.jpg')
+    password = db.Column(db.String(80))
     subscriptions = db.relationship('Event', secondary=subs, passive_deletes=True, backref=db.backref('subscribers', lazy='dynamic'))
 
     def attend(self, theEvent):
@@ -47,6 +138,21 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f"User('{self.username}'), '{self.email}', '{self.image_file}'"
+
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    user_id = db.Column(db.Integer(), db.ForeignKey(User.id))
+    user = db.relationship(User)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+github_blueprint.backend = SQLAlchemyBackend(OAuth, db.session, user=current_user, user_required=False)
+
+google_blueprint.backend = SQLAlchemyBackend(OAuth, db.session, user=current_user, user_required=False)
 
 
 class Event(db.Model):
@@ -296,4 +402,4 @@ def showList(eventid):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port="80")
+    app.run(debug=True)

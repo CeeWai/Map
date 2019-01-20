@@ -13,7 +13,7 @@ Login
 <link href='https://fonts.googleapis.com/css?family=Sofia' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="/static/menu.css">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
-
+<link href="https://fonts.googleapis.com/css?    family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -38,7 +38,7 @@ Login
 					<a href="/dashboard">Profile</a>
 					<span class="icon">
 						{% if current_user.is_authenticated %}
-							<img src="/static/{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
+							<img src="{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
 						{% else %}
 						    <i class="fas fa-user"></i>
 						{% endif %}
@@ -87,9 +87,24 @@ Login
   <div class='agree'>
       <button class='animated btn btn-lg btn-primary btn-block' type='submit' value='Register'>Login</button>
       <label style="display: block;margin-top: 1em;margin-left: 6.5em;"><a href="{{ url_for('signup') }}">Don't have an account?</a></label>
+		<a href="/github" class="sc-buttons github-button">
+			 <i class="fab fa-github-alt" aria-hidden="true"></i>
+			 GitHub
+		</a>
+
+		<a href="/google" class="sc-buttons googleplus-button">
+			 <i class="fab fa-google-plus-g" aria-hidden="true"></i>
+			 Google+
+		</a>
+	  <!--
+	     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+      		<a href="/google" class="social_button google-plus"><span><i class="fab fa-google-plus-g"></i></span><p>Google +</p></a>
+		 </div>
+		 -->
   </div>
 </div>
       </form>
+
     </div>
 
 <script>
@@ -102,4 +117,6 @@ Login
 });
 
 </script>
+
+
 {% endblock %}
