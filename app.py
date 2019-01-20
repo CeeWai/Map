@@ -20,6 +20,7 @@ from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from flask_dance.consumer.backend.sqla import OAuthConsumerMixin, SQLAlchemyBackend
 from flask_dance.consumer import oauth_authorized
 from sqlalchemy.orm.exc import NoResultFound
+from flask_admin.form.widgets import DateTimePickerWidget
 
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -160,8 +161,8 @@ class Event(db.Model):
     title = db.Column(db.String(25), nullable=False)
     area = db.Column(db.String(50), nullable=False)
     owner_id = db.Column(db.Integer)
-    start_date = db.Column(db.String(100), nullable=False)
-    end_date = db.Column(db.String(100), nullable=False)
+    start_date = db.Column(db.String(100))
+    end_date = db.Column(db.String(100))
     desc = db.Column(db.String(1000), nullable=False)
     event_image = db.Column(db.String(20), nullable=False, default='anothereventdefault.jpg')
 
@@ -209,10 +210,10 @@ class RegisterForm(FlaskForm):
 class EventForm(FlaskForm):
     title = StringField('Title', validators=[InputRequired(), Length(min=1, max=50)], render_kw={"placeholder": "Title"})
     area = StringField('Area', validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "Area"})
-    start_date = DateTimeField('Starting Time', format="%y/%m/%d/%H:%M", validators=[DataRequired()],
-    render_kw={"placeholder": "Year/Month/Day/Hour:Minutes"})
-    end_date = DateTimeField('Ending Time', format="%y/%m/%d/%H:%M", validators=[DataRequired()],
-    render_kw={"placeholder": "Year/Month/Day/Hour:Minutes"})
+    start_date = DateTimeField('Starting Time', format="20%y-%m-%d %H:%M:%S",
+    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"}, widget=DateTimePickerWidget())
+    end_date = DateTimeField('Ending Time', format="20%y-%m-%d %H:%M:%S",
+    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"}, widget=DateTimePickerWidget())
     desc = StringField('Description', validators=[InputRequired()], widget=TextArea(),
     render_kw={"placeholder": "Description"})
     submit = SubmitField('Create Event')
@@ -222,9 +223,9 @@ class EditEventForm(FlaskForm):
     title = StringField('Title', validators=[Length(min=1, max=50)], render_kw={"placeholder": "Title"})
     area = StringField('Area', validators=[Length(min=4, max=50)], render_kw={"placeholder": "Area"})
     start_date = DateTimeField('Starting Time', format="20%y-%m-%d %H:%M:%S",
-    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"})
+    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"}, widget=DateTimePickerWidget())
     end_date = DateTimeField('Ending Time', format="20%y-%m-%d %H:%M:%S",
-    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"})
+    render_kw={"placeholder": "Year-Month-Day Hour:Minutes:Seconds"}, widget=DateTimePickerWidget())
     desc = StringField('Description', widget=TextArea(),
     render_kw={"placeholder": "Description"})
     image = FileField('Event Image')
