@@ -49,6 +49,9 @@ github_blueprint = make_github_blueprint(client_id='461d29fc867322082b41', clien
 google_blueprint = make_google_blueprint(client_id='1017274687523-9tpt3p5ulut97imugt8nbmp9s3i40059.apps.googleusercontent.com',
 client_secret='2-HFuLG07YIcULFlkxDZ6taj')
 
+Client_ID = '1017274687523-tne2685hgpicn869d7dqv875f3ffprns.apps.googleusercontent.com'
+Client_Secret = '3cMVk9sFvW4nDbbsV9_pNHJl'
+
 app.register_blueprint(twitter_blueprint, url_prefix='/twitter_login')
 
 app.register_blueprint(github_blueprint, url_prefix='/github_login')
