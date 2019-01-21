@@ -83,7 +83,7 @@
             {% if firstEvent.subscribers.all()|length >= 1 %}
                 {% for subber in firstEvent.subscribers.all() %}
                     <div class='card'>
-                      <div id='left' style="background-image: url(/static/{{ subber.image_file }});"></div>
+                      <div id='left' style="background-image: url({{ subber.image_file }});"></div>
                       <div id='right'>
                         <span class='username'>{{ subber.username }}</span>
                         {{ subber.email }}
@@ -127,13 +127,13 @@
               {% if events.subscribers.all()|length < 5 %}
                   {% for sub in events.subscribers.all() %}
                         <li>
-                            <img src="/static/{{ sub.image_file }}" class="" style="width: 100%;">
+                            <img src="{{ sub.image_file }}" class="" style="width: 100%;">
                         </li>
                   {% endfor %}
               {% else %}
                   {% for j in range(4) %}
                     <li>
-                        <img src="/static/{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
+                        <img src="{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
                     </li>
                   {% endfor %}
                     <li class="card-media-object-social-list-item-additional">
