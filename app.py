@@ -1,4 +1,5 @@
-import os, time, requests, geocoder, json
+from __future__ import print_function
+import os, time, requests, geocoder, json, datetime, pickle, os.path
 from geopy.geocoders import Nominatim
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from flask_bootstrap import Bootstrap
@@ -21,7 +22,6 @@ from flask_dance.consumer.backend.sqla import OAuthConsumerMixin, SQLAlchemyBack
 from flask_dance.consumer import oauth_authorized
 from sqlalchemy.orm.exc import NoResultFound
 from flask_admin.form.widgets import DateTimePickerWidget
-
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
@@ -271,7 +271,14 @@ def index():
     eventList = db.session.query(Event).all()
     event_locations = create_event_markers()
     event_markers_image = event_markers_list
-    return render_template('map.html', eventList=eventList, event_locations=event_locations, event_markers_image=event_markers_image)
+    pointList = []
+    for event in Event.query.all():
+        g = geocoder.mapbox(event.area, key=ACCESS_KEY)
+        thelng = str(g.lng)
+        thelat = str(g.lat)
+        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        pointList.append(theURL)
+    return render_template('map.html', eventList=eventList, event_locations=event_locations, event_markers_image=event_markers_image, pointList=pointList)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -335,7 +342,15 @@ def dashboard():
 def joinEvents():
     eventList = db.session.query(Event).all()
     firstEvent = Event.query.first()
-    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent)
+    pointList = []
+    for event in Event.query.all():
+        g = geocoder.mapbox(event.area, key=ACCESS_KEY)
+        thelng = str(g.lng)
+        thelat = str(g.lat)
+        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        pointList.append(theURL)
+    print(pointList)
+    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, pointList=pointList)
 
 
 @app.route('/joinEvents/delEvent/<eventid>')
@@ -402,7 +417,14 @@ def showList(eventid):
     eventList = db.session.query(Event).all()
     firstEvent = Event.query.filter_by(id=eventid).first()
     theOpen = True
-    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, theOpen=theOpen)
+    pointList = []
+    for event in Event.query.all():
+        g = geocoder.mapbox(event.area, key=ACCESS_KEY)
+        thelng = str(g.lng)
+        thelat = str(g.lat)
+        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        pointList.append(theURL)
+    return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, theOpen=theOpen, pointList=pointList)
 
 
 if __name__ == '__main__':
