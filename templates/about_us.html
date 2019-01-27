@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About us</title>
+      <link rel="stylesheet" href="/static/about_us.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+</head>
+<body>
+<!-- Menu -->
+<div class="primary-nav">
+
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="/dashboard">Profile</a>
+					<span class="icon">
+						{% if current_user.is_authenticated %}
+							<img src="{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
+						{% else %}
+						    <i class="fas fa-user"></i>
+						{% endif %}
+					</span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+							<li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+				<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				<li><a href="/">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li><a href="/">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
+<header>
+  <div class='slider-navigation'>
+    <div class='nav-pointer draggable'>
+      0/0
+    </div>
+  </div>
+</header>
+<div class='site-container'>
+  <section class='intro'>
+    <div class='wrap'>
+      <div class='content'>
+        <p id="the_head">
+          <span id="the_headspan">
+              {% if current_user.is_authenticated %}
+                Welcome <br> {{ current_user.username }}
+              {% else %}
+                Welcome
+              {% endif %}
+          </span>
+        </p>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class='wrap'>
+      <div class='content'>
+        <h1>Section 2</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class='wrap'>
+      <div class='content'>
+        <h1>Section 3</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class='wrap'>
+      <div class='content'>
+        <h1>Section 4</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class='wrap'>
+      <div class='content'>
+        <h1>Section 5</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+</body>
+<script>
+    $(document).ready(function() {
+  $("section").each(function() {
+    $(".slider-navigation").prepend('<div class="tick"></div>');
+  });
+
+  $(".tick").on("click", function() {
+    var tickIndex = $(this).index();
+    $("body").scrollTop($(window).height() * tickIndex);
+  });
+
+  updatePos();
+}); // end document ready
+
+var isDragging = false;
+var sliderTop, pointerPos, currentSection;
+
+var bodyHeight = $("body").height();
+var sliderHeight = $(".slider-navigation").height();
+var elementHeight = $("section").height();
+var sectionAmount = $("section").length;
+var scale =
+  (bodyHeight - elementHeight) /
+  (sliderHeight - $(".nav-pointer").outerHeight());
+
+var waitForFinalEvent = (function() {
+  var timers = {};
+  return function(callback, ms, uniqueId) {
+    if (!uniqueId) {
+      uniqueId = "resize";
+    }
+    if (timers[uniqueId]) {
+      clearTimeout(timers[uniqueId]);
+    }
+    timers[uniqueId] = setTimeout(callback, ms);
+  };
+})();
+
+function updatePos() {
+  currentSection = $(window).scrollTop() / elementHeight;
+  currentSectionNum = Math.ceil(currentSection + 0.01);
+  sliderTop = $(window).scrollTop() / scale;
+  $(".nav-pointer")
+    .css("top", sliderTop)
+    .text(currentSectionNum + "/" + sectionAmount);
+}
+
+function sliderMove(e) {
+  $("body").scrollTop(parseInt(e) * scale);
+}
+
+$(window).scroll(function() {
+  if (!isDragging) {
+    updatePos();
+  }
+});
+
+$(window).resize(function() {
+  waitForFinalEvent(
+    function() {
+      bodyHeight = $("body").height();
+      sliderHeight = $(".slider-navigation").height();
+      elementHeight = $("section").height();
+      sectionAmount = $("section").length;
+      scale =
+        (bodyHeight - elementHeight) /
+        (sliderHeight - $(".nav-pointer").outerHeight());
+
+      updatePos();
+    },
+    500,
+    "resizing"
+  );
+});
+
+$(window).resize(function() {});
+
+$(".draggable").draggable({
+  axis: "y",
+  containment: "parent",
+  start: function() {
+    isDragging = true;
+    $("body").addClass("dragging");
+  },
+  drag: function() {
+    pointerPos = $(this).css("top");
+    sliderMove(pointerPos);
+    updatePos();
+  },
+  stop: function() {
+    isDragging = false;
+    $("body").removeClass("dragging");
+  }
+});
+
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+</html>

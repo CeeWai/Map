@@ -411,6 +411,11 @@ def unattendEvent(eventid):
     return redirect(url_for('joinEvents'))
 
 
+@app.route('/aboutUs')
+def aboutUs():
+    return render_template('about_us.html')
+
+
 @app.route('/joinEvents/attendingList/<eventid>')
 def showList(eventid):
     eventid = int(eventid)
