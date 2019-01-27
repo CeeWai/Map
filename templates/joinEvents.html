@@ -186,7 +186,8 @@
                   <a href="{{ pointList[loop.index - 1] }}">Directions</a>
                  {% if events.owner_id != current_user.id %}
                      {% if current_user not in events.subscribers.all() %}
-                        <a href="/joinEvents/jointheparty/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">JOIN NOW!</a>
+
+                      <a href="/joinEvents/jointheparty/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">JOIN NOW!</a>
                      {% else %}
 
                         <a href="/joinEvents/unattend/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">UNATTEND</a>
