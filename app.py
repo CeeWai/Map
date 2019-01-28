@@ -550,7 +550,6 @@ def register():
         user.image = image
         user.businessboolean = True
         db.session.commit()
-        flash('Successfully created Business profile!')
         return redirect(url_for("businessprof", name=form.brandName.data))
     return render_template("RegisterProfile.html", form=form)
 
@@ -577,7 +576,6 @@ def businessprof(name):
         post1 = BusinessPosts(blog=form.post.data, author=business, postImage=image)  # current_user
         db.session.add(post1)
         db.session.commit()
-        flash('Your post is now live!')
         return redirect(url_for('businessprof', name=name))
 
     return render_template("BusinessProf.html", name=business, form=form, posts=posts)
