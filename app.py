@@ -1,12 +1,12 @@
 from __future__ import print_function
 import os, time, requests, geocoder, json, datetime, pickle, os.path
 from geopy.geocoders import Nominatim
-from flask import Flask, render_template, redirect, url_for, request, session, jsonify
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, DateTimeField, SubmitField, FileField
-from wtforms.validators import InputRequired, Email, Length, DataRequired
-from wtforms.widgets import TextArea
+from wtforms import StringField, PasswordField, BooleanField, DateTimeField, SubmitField, FileField, TextAreaField
+from wtforms.validators import InputRequired, Email, Length, DataRequired, ValidationError
+from wtforms.widgets import TextArea, CheckboxInput
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -22,7 +22,11 @@ from flask_dance.consumer.backend.sqla import OAuthConsumerMixin, SQLAlchemyBack
 from flask_dance.consumer import oauth_authorized
 from sqlalchemy.orm.exc import NoResultFound
 from flask_admin.form.widgets import DateTimePickerWidget
+from time import time
+from flask_moment import Moment
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from datetime import datetime
+
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
@@ -38,6 +42,7 @@ ACCESS_KEY = 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.
 photos = UploadSet('photos', IMAGES)
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
 configure_uploads(app, photos)
+moment = Moment(app)
 
 
 subs = db.Table('subs',
@@ -134,7 +139,42 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(50), unique=True)
     image_file = db.Column(db.String(20), default='https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1-744x744.jpg')
     password = db.Column(db.String(80))
+    businessboolean = db.Column(db.Boolean('Agree'), default=False)
+    brandName = db.Column(db.String(50), default=None)
+    brandDesc = db.Column(db.String(150), default=None)
+    address = db.Column(db.String(200), default=None)
+    hotline = db.Column(db.Integer(), default=None)
+    b_email = db.Column(db.String(50), default=None)
+    website = db.Column(db.String(100), default=None)
+    operatingHours = db.Column(db.String(200), default=None)
+    image = db.Column(db.String(200), default=None)
+
+    post = db.relationship("BusinessPosts", backref=db.backref("author"))
     subscriptions = db.relationship('Event', secondary=subs, passive_deletes=True, backref=db.backref('subscribers', lazy='dynamic'))
+
+    def set_brandName(self, brandName):
+        self.brandName = brandName
+
+    def set_brandDesc(self, brandDesc):
+        self.brandDesc = brandDesc
+
+    def set_address(self, address):
+        self.address = address
+
+    def set_hotline(self, hotline):
+        self.hotline = hotline
+
+    def set_b_email(self, b_email):
+        self.b_email = b_email
+
+    def set_website(self, website):
+        self.website = website
+
+    def set_operatingHours(self, operatingHours):
+        self.operatingHours = operatingHours
+
+    def set_image(self, image):
+        self.image = image
 
     def attend(self, theEvent):
         if self not in theEvent.subscribers:
@@ -192,9 +232,9 @@ class MyAdminIndexView(AdminIndexView):
 
 
 # Add your view from the admin dashboard here
-admin = Admin(app, index_view=AdminIndexView())
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Event, db.session))
+#admin = Admin(app, index_view=AdminIndexView())
+#admin.add_view(ModelView(User, db.session))
+#admin.add_view(ModelView(Event, db.session))
 
 
 @login_manager.user_loader
@@ -434,6 +474,127 @@ def showList(eventid):
         theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
         pointList.append(theURL)
     return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, theOpen=theOpen, pointList=pointList)
+
+
+# Business Posts
+class BusinessPosts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    #blogger = current_user
+    #bloggerImg = current_user.image_file
+    blog = db.Column(db.String(500), nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    blog_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    postImage = db.Column(db.String(200))
+
+
+# STORE PHOTOS IN DATABASE AND STATIC FOLDER
+# BUSINESS GALLERY
+photos = UploadSet('photos', IMAGES)
+app.config['UPLOADED_PHOTOS_DEST'] = 'static/galleries'
+configure_uploads(app, photos)
+
+
+# WTForms
+class BusinessForms(FlaskForm):
+    brandName = StringField('Brand Name', validators=[DataRequired()])
+    brandDesc = StringField('Brand Description', validators=[DataRequired()])
+    address = StringField('Address', validators=[DataRequired()])
+    hotline = StringField('Hotline', validators=[DataRequired()])
+    b_email = StringField('E-mail', validators=[DataRequired(), Email()])
+    website = StringField('Website', validators=[DataRequired()])
+    operatingHours = StringField('Operating Hours', validators=[DataRequired()])
+    submit = SubmitField("Create profile!")
+
+    def validate_brandName(self, brandName):
+        user = User.query.filter_by(brandName=brandName.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different Brand Name.')
+
+    def validate_hotline(self, hotline):
+        user = User.query.filter_by(hotline=hotline.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different Hotline.')
+
+    def validate_b_email(self, b_email):
+        user = User.query.filter_by(b_email=b_email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different E-Mail.')
+
+    def validate_website(self, website):
+        user = User.query.filter_by(website=website.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different Website.')
+
+
+class PostStatus(FlaskForm):
+    post = TextAreaField('Say something...', validators=[
+        DataRequired(), Length(min=1, max=140)])
+    submit = SubmitField('Submit')
+
+
+# APP ROUTES
+# REGISTER BUSINESS PAGE
+@app.route("/register", methods=["POST", "GET"])
+def register():
+    form = BusinessForms()
+    if form.validate_on_submit() and 'photo' in request.files:
+        image = photos.save(request.files["photo"])
+        business = User(
+            brandName=form.brandName.data,
+            brandDesc=form.brandDesc.data,
+            address=form.address.data,
+            hotline=form.hotline.data,
+            b_email=form.b_email.data,
+            website=form.website.data,
+            operatingHours=form.operatingHours.data,
+            image=image,
+            businessboolean=True,
+        )
+        db.session.add(business)
+        db.session.commit()
+        flash('Successfully created Business profile!')
+        return redirect(url_for("businessprof", name=form.brandName.data))
+    return render_template("RegisterProfile.html", form=form)
+
+
+# BUSINESS PROFILE PAGE
+@app.route("/profile/<name>", methods=["POST", "GET"])
+def businessprof(name):
+    business = User.query.filter_by(brandName=name).first()
+    form = PostStatus()
+    posts = BusinessPosts.query.filter_by(blog_id=business.id).all()
+    if form.validate_on_submit():
+        try:
+            image = photos.save(request.files["photo"])
+        except:
+            image = None
+        post1 = BusinessPosts(blog=form.post.data, author=business, postImage=image)  # current_user
+        db.session.add(post1)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('businessprof', name=name))
+    return render_template("BusinessProf.html", name=business, form=form, posts=posts)
+
+
+# UPDATE BUSINESS PROFILE
+@app.route("/profile/<name>/update", methods=["POST", "GET"])
+def updatebusiness(name):
+    businessName = User.query.filter_by(brandName=name).first()
+    form = BusinessForms()
+    if form.validate_on_submit() and 'photo' in request.files:
+        image = photos.save(request.files["photo"])
+        businessName.set_brandName(form.brandName.data)
+        businessName.set_brandDesc(form.brandDesc.data)
+        businessName.set_address(form.address.data)
+        businessName.set_hotline(form.hotline.data)
+        businessName.set_b_email(form.b_email.data)
+        businessName.set_website(form.website.data)
+        businessName.set_operatingHours(form.operatingHours.data)
+        businessName.set_image(image)
+        db.session.add(businessName)
+        db.session.commit()
+        return redirect(url_for("businessprof", name=form.brandName.data))
+    return render_template("UpdateProfile.html", form=form, name=businessName)
 
 
 if __name__ == '__main__':
