@@ -648,7 +648,7 @@ def shop(shopname):
     return render_template('Shop.html', shop=shop)
 
 
-@app.route('/form2', methods=['GET', 'POST'])
+@app.route('/forms', methods=['GET', 'POST'])
 def add_form():
     form = forms()
     if form.validate_on_submit():
