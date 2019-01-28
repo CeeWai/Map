@@ -22,6 +22,7 @@ from flask_dance.consumer.backend.sqla import OAuthConsumerMixin, SQLAlchemyBack
 from flask_dance.consumer import oauth_authorized
 from sqlalchemy.orm.exc import NoResultFound
 from flask_admin.form.widgets import DateTimePickerWidget
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
@@ -34,6 +35,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.session_protection = "strong"
 ACCESS_KEY = 'pk.eyJ1IjoiY2Vld2FpIiwiYSI6ImNqbng3eDcyZDByeXgzcHBnY2w0cGloM2sifQ.NsvAT34SplBxuUvZsvUSKA'
+photos = UploadSet('photos', IMAGES)
+app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
+configure_uploads(app, photos)
 
 
 subs = db.Table('subs',
@@ -374,6 +378,7 @@ def editEvent(eventid):
         eventid = int(eventid)
         event = Event.query.filter_by(id=eventid)
         event.delete()
+        filename = photos.save(request.files['photo'])
         new_event = Event(title=form.title.data, area=form.area.data, start_date=form.start_date.data,
                           end_date=form.end_date.data, desc=form.desc.data, owner_id=current_user.id)
         db.session.add(new_event)
