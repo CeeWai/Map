@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Business Profile</title>
+    <link rel="stylesheet" type="text/css" href="../static/businessProf.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="row d-flex justify-content-center page" style="position: center">
+    <!--   LEFT-PANEL  -->
+    <div class="col-3">
+        <img class="rounded-circle  mx-auto d-block" src="../static/galleries/{{ name.image }}" alt="Company Logo" height="300" width="300">
+        <hr width="100%">
+        <div>
+            <h2 class="company" style="text-align: center">{{  name.brandName  }}</h2><br>
+        <!-- If current user is the owner, allowed to edit profile
+            {% if current_user == owner %}
+            <input type="submit" value="Edit Profile">
+            {% else %}
+            <span></span>
+            {% endif %}
+        -->
+            <div class="d-flex justify-content-center">
+                <a href="{{ url_for("updatebusiness", name=name.brandName) }}" id="edit" class="btn btn-primary">Edit Profile</a>
+            </div>
+
+            <!--   DETAILS   -->
+            <hr width="100%" class="hr-text" data-content="Location">
+            <h4 class="d-flex justify-content-between"><span><i class="fas fa-angle-right" style="font-size: 100%;"></i>{{  name.brandName  }}</span></h4>
+            <p class="lighttext">{{  name.brandDesc  }}</p>
+            <!--   LOCATION   -->
+            <h4 class="d-flex justify-content-between"><span><i class="fas fa-map-marker-alt" style="font-size: 80%;"></i>&nbsp;{{  name.address  }}</span></h4>
+            <!--   CONTACT US   -->
+            <hr width="100%" class="hr-text" data-content="Contact Us">
+            <h4>Hotline : {{  name.hotline  }}</h4>
+            <h4>Email : {{  name.b_email  }}</h4>
+                {% if name.website == "" %}
+                <h4>(We have no website...)</h4>
+                {% else %}
+            <h4>Website : <span><a href="#">{{  name.website  }}</a></span>
+            </h4>
+                {% endif %}
+
+            <!--   OPENING HOURS (OPTIONAL)   --->
+            <hr width="100%" class="hr-text" data-content="OPENING HOURS">
+            <h4 class="date">{{  name.operatingHours  }}</h4>
+            <hr>
+        </div>
+
+    <!--   RIGHT-PANEL   -->
+    </div>
+    <div class="'col-10">
+        <hr>
+        <h2 style="text-align: center">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Timeline & News&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+        <!--   FORM   -->
+        {% import 'bootstrap/wtf.html' as wtf %}
+        <form class="needs-validation" enctype="multipart/form-data" method="POST" action="" novalidate>
+                <div style="padding-top: 25px;padding-bottom: 25px;" id="imageFile">
+                    <input class="custom-file" type="file" name="photo" required>
+                </div>
+            {{ wtf.quick_form(form) }}
+        </form>
+        <!--   NEWS   -->
+        <hr width="100%" class="hr-text" data-content="News">
+        <br>
+        {% for post in posts %}
+       <table class="table table-hover">
+        <tr>
+            <td width="70px">
+                <a href="{{ url_for('businessprof', name=post.author.username) }}">
+                    <img width="50px" height="50px" src="../static/galleries/{{ post.postImage }}">
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('businessprof', name=post.author.brandName) }}">
+                    {{ post.author.brandName }}
+                </a>
+                said {{ moment(post.timestamp).fromNow() }}:
+                <br>
+                {{ post.blog }}<br>
+                {% if post.postImage != None %}
+                <img width="400px" height="400px" src="../static/galleries/{{ post.postImage }}">
+                {% else %}
+                <h1></h1>
+                {% endif %}
+
+            </td>
+        </tr>
+    </table>
+   {% endfor %}
+</div>
+    </div>
+{% extends 'bootstrap/base.html' %}
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+{% endblock %}
+</body>
+
+</html>
