@@ -5,6 +5,9 @@
     <title>About us</title>
       <link rel="stylesheet" href="/static/about_us.css">
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+      <link rel="stylesheet" href="/static/menu.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+
 
 </head>
 <body>
@@ -78,13 +81,13 @@
 <div class='site-container'>
   <section class='intro'>
     <div class='wrap'>
-      <div class='content'>
+      <div class='content' style="position: static;">
         <p id="the_head">
           <span id="the_headspan">
               {% if current_user.is_authenticated %}
                 Welcome <br> {{ current_user.username }}
               {% else %}
-                Welcome
+                About us.
               {% endif %}
           </span>
         </p>
@@ -94,24 +97,32 @@
   <section>
     <div class='wrap'>
       <div class='content'>
-        <h1>Section 2</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+        <h1>Week 4</h1>
+        <p>During weeks 1-4 the group struggled to come up with a good topic to for the project. It was after several revisions
+        that we somehow ended up with the idea of a map based web application to find bars around Singapore. Our project
+        was based on the recent uprising of map based applications with reference to Pokemon Go or Uber and such. This
+        was the beginning of the climb and of our grind.</p>
       </div>
     </div>
   </section>
   <section>
     <div class='wrap'>
       <div class='content'>
-        <h1>Section 3</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+        <h1>Week 8</h1>
+        <p>Weeks 5-8 was a painful stretch for our group it was during this time when we have finally finished the
+        foundations of what you would see today as our final product. During this period of time, we have had to tackle
+        the mid terms examinations. Having to juggle between studying for the examinations and doing the project was
+        proven to be extremely tiring for our group members. Every week we had either projects, assignments or tests to
+        worry about. Progress was still made however, this was when each of our project members had about 2-3 pages for
+        show. But some of what we had for show though, was still hard coded.</p>
       </div>
     </div>
   </section>
   <section>
     <div class='wrap'>
       <div class='content'>
-        <h1>Section 4</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo necessitatibus fuga deserunt beatae ut minima, nobis voluptates dolore suscipit corporis temporibus quaerat, vel amet magnam voluptas, aliquid nostrum ipsa fugiat.</p>
+        <h1>Week 12</h1>
+        <p>During weeks 9-12, our </p>
       </div>
     </div>
   </section>
@@ -128,7 +139,7 @@
 
 </body>
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
   $("section").each(function() {
     $(".slider-navigation").prepend('<div class="tick"></div>');
   });

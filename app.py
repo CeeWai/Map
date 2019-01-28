@@ -411,7 +411,7 @@ def unattendEvent(eventid):
     return redirect(url_for('joinEvents'))
 
 
-@app.route('/aboutUs')
+@app.route('/about_us')
 def aboutUs():
     return render_template('about_us.html')
 

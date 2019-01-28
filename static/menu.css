@@ -104,6 +104,10 @@ body {
 	color: #777;
 }
 
+.menu-dropdown li{
+	text-align: left;
+}
+
 .menu-dropdown li:hover .icon {
 	color: #fff;
 }
