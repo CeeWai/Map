@@ -378,7 +378,6 @@ def editEvent(eventid):
         eventid = int(eventid)
         event = Event.query.filter_by(id=eventid)
         event.delete()
-        filename = photos.save(request.files['photo'])
         new_event = Event(title=form.title.data, area=form.area.data, start_date=form.start_date.data,
                           end_date=form.end_date.data, desc=form.desc.data, owner_id=current_user.id)
         db.session.add(new_event)
