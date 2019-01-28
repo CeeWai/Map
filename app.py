@@ -569,8 +569,7 @@ def businessprof(name):
     form = PostStatus()
     posts = BusinessPosts.query.filter_by(blog_id=business.id).all()
     if form.validate_on_submit():
-        try:
-            image = photos.save(request.files["photo"])
+        try:image = photos.save(request.files["photo"])
         except:
             image = None
         post1 = BusinessPosts(blog=form.post.data, author=business, postImage=image)  # current_user
@@ -642,13 +641,17 @@ def listing():
 
 @app.route('/listings/<shopname>')
 def shop(shopname):
+
     shop = Listing.query.filter_by(name=shopname).first()
+
     return render_template('Shop.html', shop=shop)
 
 
 @app.route('/forms', methods=['GET', 'POST'])
 def add_form():
+
     form = forms()
+
     if form.validate_on_submit():
         listing = Listing(name=form.name.data, description=form.description.data, hoursMon=form.hoursMon.data, hoursTues=form.hoursTues.data, hoursWed=form.hoursWed.data, hoursThurs=form.hoursThurs.data, hoursFri=form.hoursFri.data, hoursSat=form.hoursSat.data, hoursSun=form.hoursSun.data, address=form.address.data, atmosphere=form.atmosphere.data, paymentMode=form.paymentMode.data)
         db.session.add(listing)
