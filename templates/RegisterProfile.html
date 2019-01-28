@@ -5,7 +5,73 @@
     Business profile
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="/static/menu.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+{% endblock %}
+
 {% block content %}
+<!-- Menu -->
+<div class="primary-nav">
+
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="#">Profile</a><span class="icon"><i class="fas fa-user"></i></span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+							<li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+							<li><a href="/">Create Listings</a><span class="icon"><i class="fas fa-clipboard-list"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						<li><a href="/event">Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+			<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				{% if current_user.is_authenticated %}
+						<li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+				{% endif %}
+
+				<li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
+
+				<li><a href="/">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>
+
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
     <div class="container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -28,6 +94,17 @@
         </div>
     </div>
 
+<script>
+ $('.nav-toggle').click(function(e) {
+
+  e.preventDefault();
+  $("html").toggleClass("openNav");
+  $(".nav-toggle").toggleClass("active");
+
+});
+
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 
 {% endblock %}
 

@@ -6,15 +6,77 @@
     <link rel="stylesheet" type="text/css" href="../static/businessProf.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/menu.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
 </head>
 <body>
+<!-- Menu -->
+<div class="primary-nav">
 
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container" style="overflow: auto !important;">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="#">Profile</a><span class="icon"><i class="fas fa-user"></i></span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+							<li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+							<li><a href="/">Create Listings</a><span class="icon"><i class="fas fa-clipboard-list"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						<li><a href="/event">Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+			<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				{% if current_user.is_authenticated %}
+						<li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+				{% endif %}
+
+				<li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
+
+				<li><a href="/">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>
+
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
 <div class="row d-flex justify-content-center page" style="position: center">
     <!--   LEFT-PANEL  -->
     <div class="col-3">
         <img class="rounded-circle  mx-auto d-block" src="../static/galleries/{{ name.image }}" alt="Company Logo" height="300" width="300">
         <hr width="100%">
-        <div>
+        <div style="overflow: hidden;">
             <h2 class="company" style="text-align: center">{{  name.brandName  }}</h2><br>
         <!-- If current user is the owner, allowed to edit profile
             {% if current_user == owner %}
@@ -24,7 +86,7 @@
             {% endif %}
         -->
             <div class="d-flex justify-content-center">
-                <a href="{{ url_for("updatebusiness", name=name.brandName) }}" id="edit" class="btn btn-primary">Edit Profile</a>
+                <a href="/profile/{{ current_user.brandName }}/update" id="edit" class="btn btn-primary">Edit Profile</a>
             </div>
 
             <!--   DETAILS   -->
@@ -70,13 +132,13 @@
        <table class="table table-hover">
         <tr>
             <td width="70px">
-                <a href="{{ url_for('businessprof', name=post.author.username) }}">
-                    <img width="50px" height="50px" src="../static/galleries/{{ post.postImage }}">
+                <a href="/profile/{{ current_user.brandName }}">
+                    <img width="50px" height="50px" src="{{ current_user.image_file }}">
                 </a>
             </td>
             <td>
                 <a href="{{ url_for('businessprof', name=post.author.brandName) }}">
-                    {{ post.author.brandName }}
+                    {{ current_user.username }}
                 </a>
                 said {{ moment(post.timestamp).fromNow() }}:
                 <br>
@@ -93,11 +155,24 @@
    {% endfor %}
 </div>
     </div>
+<script>
+$('.nav-toggle').click(function(e) {
+
+  e.preventDefault();
+  $("html").toggleClass("openNav");
+  $(".nav-toggle").toggleClass("active");
+
+});
+
+</script>
 {% extends 'bootstrap/base.html' %}
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
 {% endblock %}
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
 </body>
 
 </html>

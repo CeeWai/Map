@@ -64,7 +64,9 @@ Dashboard
 
 				<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
 
-				<li><a href="/">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+                {% if current_user.is_authenticated %}
+						<li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+				{% endif %}
 
                 <li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
                 <li><a href="/">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>

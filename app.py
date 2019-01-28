@@ -539,22 +539,28 @@ def register():
     form = BusinessForms()
     if form.validate_on_submit() and 'photo' in request.files:
         image = photos.save(request.files["photo"])
-        business = User(
-            brandName=form.brandName.data,
-            brandDesc=form.brandDesc.data,
-            address=form.address.data,
-            hotline=form.hotline.data,
-            b_email=form.b_email.data,
-            website=form.website.data,
-            operatingHours=form.operatingHours.data,
-            image=image,
-            businessboolean=True,
-        )
-        db.session.add(business)
+        user = User.query.filter_by(id=current_user.id).first()
+        user.brandName = form.brandName.data
+        user.brandDesc = form.brandDesc.data
+        user.address = form.address.data
+        user.hotline = form.hotline.data
+        user.b_email = form.b_email.data
+        user.website = form.website.data
+        user.operatingHours = form.operatingHours.data
+        user.image = image
+        user.businessboolean = True
         db.session.commit()
         flash('Successfully created Business profile!')
         return redirect(url_for("businessprof", name=form.brandName.data))
     return render_template("RegisterProfile.html", form=form)
+
+
+@app.route("/theBusiness", methods=["POST", "GET"])
+def theBusiness():
+    if current_user.businessboolean == True:
+        return redirect("/profile/" + current_user.brandName)
+    else:
+        return redirect("register")
 
 
 # BUSINESS PROFILE PAGE
@@ -573,6 +579,7 @@ def businessprof(name):
         db.session.commit()
         flash('Your post is now live!')
         return redirect(url_for('businessprof', name=name))
+
     return render_template("BusinessProf.html", name=business, form=form, posts=posts)
 
 
