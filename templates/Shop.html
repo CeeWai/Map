@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OOPP Project</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+
+  <!-- Favicons -->
+  <link href="/static/favicon.png" rel="icon">
+  <link href="/static/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Montserrat:300,400,500,700" rel="stylesheet">
+
+  <!-- Bootstrap CSS File -->
+  <link href="/static/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Libraries CSS Files -->
+  <link href="/static/font-awesome.min.css" rel="stylesheet">
+  <link href="/static/animate.min.css" rel="stylesheet">
+  <link href="/static/ionicons.min.css" rel="stylesheet">
+  <link href="/static/owl.carousel.min.css" rel="stylesheet">
+  <link href="/static/lightbox.min.css" rel="stylesheet">
+  <link href="/static/create.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="/static/style2.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/menu.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
+
+</head>
+<body>
+<!-- Menu -->
+<div class="primary-nav">
+
+	<button href="#" class="hamburger open-panel nav-toggle">
+<span class="screen-reader-text">Menu</span>
+</button>
+
+	<nav role="navigation" class="menu">
+
+		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+
+		<div class="overflow-container">
+
+			<ul class="menu-dropdown">
+
+				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+
+				<li class="menu-hasdropdown">
+					<a href="#">Profile</a><span class="icon"><i class="fas fa-user"></i></span>
+
+					<label title="toggle menu" for="settings">
+        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+      </label>
+					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+
+					<ul class="sub-menu-dropdown">
+						{% if current_user.is_authenticated %}
+							<li><a href="/dashboard">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+							<li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+							<li><a href="/forms">Create Listings</a><span class="icon"><i class="fas fa-clipboard-list"></i></span></li>
+						{% else %}
+							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+						{% endif %}
+						<li><a href="/event">Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+						{% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
+                        {% endif %}
+					</ul>
+				</li>
+
+			<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+
+				{% if current_user.is_authenticated %}
+						<li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+				{% endif %}
+
+				<li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
+
+				<li><a href="/listings">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>
+
+			</ul>
+
+		</div>
+
+	</nav>
+
+</div>
+<!-- /Menu -->
+<section id="for_create" style="display: block;">
+    <div class="popup-overlay" style="display:none;">
+
+        <div class="popWindow subscribe_window" style="display:none;">
+          <p class="subcsribe-text">Fill in the required fields for your shop</p>
+          <form class="subscribe-form" autocomplete="off" method="post" action="" novalidate>
+            <div>
+              <input type="text" id="name-subscribe" name="Name" placeholder=" " required>
+              <label for="name-subscribe">Name <span>*</span></label>
+            </div>
+            <div>
+              <input type="email" id="email-subscribe" name="E-mail" placeholder=" " required>
+              <label for="email-subscribe">Email <span>*</span></label>
+            </div>
+            <div>
+              <input type="text" id="Shop-description" name="Description" placeholder=" " required>
+              <label for="email-subscribe">Description <span>*</span></label>
+            </div>
+            <div class="aligncenter">
+              <button type="submit" class="btn"><i class="fa fa-check" aria-hidden="true"></i><a href="listingsfake.html">Register</a></button>
+            </div>
+            <div class="req-fields"><sup style="color: orange">*</sup> required fields</div>
+          </form>
+          <div class="close-btn">&times;</div>
+        </div><!-- /subscribe_window -->
+
+        <div class="popWindow thank_you_window">
+          <p class="thank_you_title">Thank you for registering!</p>
+          <p class="thank_you_body">We've sent some useful tips to your email. Go ahead and check them now!</p>
+          <div class="close-btn">&times;</div>
+        </div><!-- /thank_you_window -->
+       </div><!-- /popup-overlay -->
+</section>
+
+    <section id="listings" style="padding-top: 100px;">
+        <div class="container">
+
+        <header class="section-header">
+          <h3>{{ shop.name }}</h3>
+          <p>{{ shop.description }}</p>
+        </header>
+        <div class="for_shop_images">
+        </div>
+            <div class="BigContainer" style="display: flex;">
+            <div class="About" style="width: 500px; border-style: solid; border-width: 5px;">
+                <div class="Description">
+                    <b><u><h1 style="text-align: center;">Operation Hours</h1></u></b>
+                </div>
+                <div class="Hours" style="display: flex; padding-left: 100px;">
+                    <div style="padding: 20px;"><b><p>Breakfast</p></b></div>
+                    <div style="padding: 20px;"><b><p>Lunch</p></b></div>
+                    <div style="padding: 20px;"><b><p>Dinner</p></b></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Monday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursMon }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Tuesday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursTues }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Wednesday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursWed }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Thursday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursThurs }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Friday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursFri }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Saturday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursSat }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div><b><p style="padding-left:20px; width: 100px;">Sunday</p></b></div>
+                    <div style="background-color: #4e555b; display: block; margin-left: 50px; height:25px;"><p style="color: white">{{ shop.hoursSun }}</p></div>
+                </div>
+            </div>
+            <div class="NextToAbout" style="margin-left: 150px; width: 900px; border-style: solid; border-width: 5px;">
+                <div class="Description">
+                    <b><u><h1 style="text-align: center">About</h1></u></b>
+                </div>
+                <div style="display: flex;">
+                    <div class="Address" style="padding-left: 20px; width:100px;"><b><p>Address:</p></b></div>
+                    <div><p style="margin-left: 50px;">{{ shop.address }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div class="Atmosphere" style="padding-left: 20px; width:100px;"><b><p>Atmosphere:</p></b></div>
+                    <div><p style="margin-left: 50px;">{{ shop.atmosphere }}</p></div>
+                </div>
+                <div style="display: flex;">
+                    <div class="Payment" style="padding-left: 20px; width:100px;"><b><p>Payment Modes:</p></b></div>
+                    <div><p style="margin-left: 50px;">{{ shop.paymentMode }}</p></div>
+                </div>
+            </div>
+
+       </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section-bg wow fadeInUp">
+      <div class="container">
+
+        <div class="section-header">
+          <h3>Contact Us</h3>
+          <p>If you should have any issues, please do let us know the problems and we will fix it ASAP.</p>
+        </div>
+
+        <div class="row contact-info">
+
+          <div class="col-md-4">
+            <div class="contact-address">
+              <i class="ion-ios-location-outline"></i>
+              <h3>Address</h3>
+              <address>Nanyang Polytechnic, Singapore</address>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="contact-phone">
+              <i class="ion-ios-telephone-outline"></i>
+              <h3>Phone Number</h3>
+              <p>+65 3182 3823</p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="contact-email">
+              <i class="ion-ios-email-outline"></i>
+              <h3>Email</h3>
+              <p><a href="mailto:info@example.com">OOPP@Project.com</a></p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form">
+          <div id="sendmessage">Your message has been sent. Thank you!</div>
+          <div id="errormessage"></div>
+          <form action="" method="post" role="form" class="contactForm">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
+                <div class="validation"></div>
+              </div>
+              <div class="form-group col-md-6">
+                <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
+                <div class="validation"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
+              <div class="validation"></div>
+            </div>
+            <div class="form-group">
+              <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
+              <div class="validation"></div>
+            </div>
+            <div class="text-center"><button type="submit">Send Message</button></div>
+          </form>
+        </div>
+
+      </div>
+    </section><!-- #contact -->
+
+  <!--==========================
+    Footer
+  ============================-->
+  <footer id="footer">
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6 footer-info">
+            <h3>OOPP</h3>
+            <p>Random Message. OOPP PROJECT on SMART NATION/SMART HEALTH.</p>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="ion-ios-arrow-right"></i> <a href="#">Home</a></li>
+              <li><i class="ion-ios-arrow-right"></i> <a href="#about">About us</a></li>
+              <li><i class="ion-ios-arrow-right"></i> <a href="#services">Services</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-contact">
+            <h4>Contact Us</h4>
+            <p>
+              Nanyang Polytechnic<br>
+              180 Ang Mo Kio Ave 8, 569830<br>
+              Singapore <br>
+              <strong>Phone:</strong> +65 3213 3231<br>
+              <strong>Email:</strong> OOPP@PROJECT.com<br>
+            </p>
+
+            <div class="social-links">
+              <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+              <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+              <a href="#" class="instagram"><i class="fa fa-instagram"></i></a>
+              <a href="#" class="google-plus"><i class="fa fa-google-plus"></i></a>
+            </div>
+
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-newsletter">
+            <h4>Our Newsletter</h4>
+            <p>Subscribe to get latest updates and news about our Website and our Products.</p>
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit"  value="Subscribe">
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong>BizPage</strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!--
+          All the links in the footer should remain intact.
+          You can delete the links only if you purchased the pro version.
+          Licensing information: https://bootstrapmade.com/license/
+          Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=BizPage
+        -->
+        Designed by <a href="https://bootstrapmade.com/">BizPage</a>
+      </div>
+    </div>
+  </footer><!-- #footer -->
+
+  <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+  <div id="preloader"></div>
+
+  <!-- JavaScript Libraries -->
+
+    <script>
+        var modal = document.getElementById("for_create")
+        var btn = document.getElementById("Button_Create")
+        //btn.onclick = function() {
+        //    modal.style.display = "block";
+        //}
+    </script>
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/jquery-migrate.min.js"></script>
+  <script src="/static/bootstrap.bundle.min.js"></script>
+  <script src="/static/easing.min.js"></script>
+  <script src="/static/hoverIntent.js"></script>
+  <script src="/static/superfish.min.js"></script>
+  <script src="/static/wow.min.js"></script>
+  <script src="/static/waypoints.min.js"></script>
+  <script src="/static/counterup.min.js"></script>
+  <script src="/static/owl.carousel.min.js"></script>
+  <script src="/static/isotope.pkgd.min.js"></script>
+  <script src="/static/lightbox.min.js"></script>
+  <script src="/static/jquery.touchSwipe.min.js"></script>
+  <!-- Contact Form JavaScript File -->
+  <script src="/static/contactform.js"></script>
+
+  <!-- Template Main Javascript File -->
+  <script src="/static/main.js"></script>
+  <!-- Extra stuff -->
+    <script src="/static/create.js"></script>
+
+<script>
+    $('.nav-toggle').click(function(e) {
+
+  e.preventDefault();
+  $("html").toggleClass("openNav");
+  $(".nav-toggle").toggleClass("active");
+
+});
+
+</script>
+</body>
+</html>
