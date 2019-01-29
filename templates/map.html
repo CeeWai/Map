@@ -241,16 +241,18 @@ var geojson = {
 		el.style.backgroundImage = 'url(/static/' + marker.properties.event_image + ')';
 
         // make a marker for each feature and add to the map
-        new mapboxgl.Marker(el)
-            .setLngLat(marker.geometry.coordinates)
-            .addTo(map);
+		{% for event in eventList %}
+			new mapboxgl.Marker(el)
+				.setLngLat(marker.geometry.coordinates)
+				.addTo(map);
 
-        new mapboxgl.Marker(el)
-            .setLngLat(marker.geometry.coordinates)
-            .setPopup(new mapboxgl.Popup({offset: 25}) // add popups
-                .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>' + '<a href="{{ pointList[count] }}">' + 'Directions' + '</a>'))
-            .addTo(map);
-        {% set count = count + 1 %}
+			new mapboxgl.Marker(el)
+				.setLngLat(marker.geometry.coordinates)
+				.setPopup(new mapboxgl.Popup({offset: 25}) // add popups
+					.setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>' + '<a href="{{ pointList[count] }}">' + 'Directions' + '</a>'))
+				.addTo(map);
+			{% set count = count + 1 %}
+		{% endfor %}
     });
 
     map.on('mouseenter', 'points', function (e) {

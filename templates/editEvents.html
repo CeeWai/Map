@@ -88,13 +88,19 @@ Event
 
 <header>Edit Event</header>
 
-<form id="form" class="topBefore" method="POST" action="/joinEvents/editEvents/{{ eventid }}">
+<form id="form" class="topBefore" method="POST" action="/joinEvents/editEvents/{{ eventid }}" enctype="multipart/form-data">
 	{{ form.hidden_tag() }}
 	{{ wtf.form_field(form.title) }}
 	{{ wtf.form_field(form.area) }}
 	{{ wtf.form_field(form.start_date) }}
 	{{ wtf.form_field(form.end_date) }}
 	{{ wtf.form_field(form.desc) }}
+	{{ wtf.form_field(form.image_file) }}
+	{% if form.image_file.errors %}
+		{% for error in form.image_file.errors %}
+			<span>{{ error }}</span>
+		{% endfor %}
+	{% endif %}
 	<div class='agree'>
 		{{ form.submit }}
 	</div>
