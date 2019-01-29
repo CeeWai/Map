@@ -1,0 +1,22 @@
+<table class="table table-hover">
+    <tr>
+        <td width="8px">
+            <p>#{{ reply.id }}</p>
+        </td>
+        <td width="70px">
+            <a href="{{ url_for('user', username=reply.author.username) }}">
+                <img src="{{ reply.author.avatar(50) }}">
+            </a>
+        </td>
+        <td>
+            <span class="user_popup">
+                <a href="{{ url_for('user', username=reply.author.username) }}">
+                    {{ reply.author.username }}
+                </a>
+            </span>
+            said {{ moment(reply.timestamp).fromNow() }}:
+            <br>
+            {{ reply.body }}
+        </td>
+    </tr>
+</table>

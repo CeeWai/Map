@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <table class="table table-hover">
+        <tr>
+            <td width="256px"><img src="{{ user.image_file }}" style="width:256px; height:256px"></td>
+            <td>
+                <h4>Name: {{ user.name }}</h4>
+                <h4>Username: {{ user.username }}</h4>
+                <h4>Birthday: {{ user.birthday }}</h4>
+                <h4>Country: {{ user.country }}</h4>
+                {% if user.about_me %}
+                    <h5>{{ user.about_me }}</h5>
+                {% endif %}
+
+                {% if user.last_seen %}
+                    <h5>Last seen on: {{ moment(user.last_seen).format('LLL') }}</h5>
+                {% endif %}
+
+
+                {% if user == current_user %}
+                    <p>{{ user.friend.count() }} <a href="{{ url_for('friend_c', username=user.username) }}">Friend(s)</a></p>
+                    <p>{{ user.requested.count() }} requests, {{ user.requesters.count() }} requests from people.</p>
+                    <p><a href="{{ url_for('requests', username=user.username) }}">Check Requests</a></p>
+                    <p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
+                {% elif current_user.is_friend(user) %}
+                    <p>{{ user.friend.count() }} Friend(s)</p>
+                    <p><a href="{{ url_for('delete_friend', username=user.username) }}">Delete Friend</a></p>
+                {% elif not current_user.is_requesting(user) %}
+                    <p>{{ user.friend.count() }} Friend(s)</p>
+                    <p><a href="{{ url_for('request1', username=user.username) }}">Friend Request</a></p>
+                {% else %}
+                    <p>{{ user.friend.count() }} Friend(s)</p>
+                    <p><a href="{{ url_for('unrequest', username=user.username) }}">Delete Request</a></p>
+                {% endif %}
+                {% if user != current_user %}
+                    <p><a href="{{ url_for('send_message', recipient=user.username) }}">Send private message</a></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+
+ <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> Newer posts
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older posts <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}

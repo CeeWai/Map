@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+    <h3>Post</h3>
+    <table class="table table-hover">
+        <tr>
+            <td width="70px">
+{#                <a href="{{ url_for('posts', id=post.id) }}">#{{ post.id }}</a>#}
+                <a href="{{ url_for('user', username=post.author.username) }}">
+                    <img src="{{ post.author.image_file }}" style="width:70px; height:70px">
+                </a>
+            </td>
+            <td>
+                    <span class="user_popup">
+                        <a href="{{ url_for('user', username=post.author.username) }}">
+                            {{ post.author.username }}
+                        </a>
+                    </span>
+                said {{ moment(post.timestamp).fromNow() }}:
+                <br>
+                {{ post.body }}
+                <br>
+                <img style="width: 250px; height: 250px;" src="../static/uploads/{{ post.image }}">
+            </td>
+            <td style="text-align: right;"><p>Likes: {{ post.likes }}</p></td>
+        </tr>
+    </table>
+{#    <h3>Replies</h3>#}
+    {% for reply in reply_db %}
+        {% include '_reply.html' %}
+    {% endfor %}
+    {{ wtf.quick_form(form) }}
+     <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> Newer Replies
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older Replies <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}

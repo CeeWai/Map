@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <table class="table table-hover">
+        <tr>
+            <td width="256px"><img src="{{ user.image_file }}" style="width: 256px; height: 256px"></td>
+            <td>
+                <h1>User: {{ user.username }}</h1>
+                {% if user.about_me %}
+                    <p>{{ user.about_me }}</p>
+                {% endif %}
+
+                {% if user.last_seen %}
+                    <p>Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
+                {% endif %}
+
+
+                {% if user == current_user %}
+                    <p>{{ user.friend.count() }} <a href="{{ url_for('friend_c', username=user.username) }}">Friend(s)</a></p>
+                    <p>{{ user.requested.count() }} requests, {{ user.requesters.count() }} requests from people.</p>
+                    <p><a href="{{ url_for('requests', username=user.username) }}">Check Requests</a></p>
+                    <p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
+
+                {% elif not current_user.is_requesting(user) %}
+                    <p>{{ user.friend.count() }} Friend(s)</p>
+                    <p><a href="{{ url_for('request1', username=user.username) }}">Friend Request</a></p>
+                {% else %}
+                    <p>{{ user.friend.count() }} Friend(s)</p>
+                    <p><a href="{{ url_for('unrequest', username=user.username) }}">Delete Request</a></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% block user_base %}{% endblock %}
+
+{% endblock %}

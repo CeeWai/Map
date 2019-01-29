@@ -4,10 +4,12 @@ from geopy.geocoders import Nominatim
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, DateTimeField, SubmitField, FileField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, DateTimeField, SubmitField, FileField, TextAreaField, DateField
+from flask_wtf.file import FileRequired, FileAllowed
 from wtforms.validators import InputRequired, Email, Length, DataRequired, ValidationError
 from wtforms.widgets import TextArea, CheckboxInput
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_admin import Admin, AdminIndexView
@@ -26,6 +28,7 @@ from time import time
 from flask_moment import Moment
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from datetime import datetime
+from hashlib import md5
 
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -43,6 +46,7 @@ photos = UploadSet('photos', IMAGES)
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
 configure_uploads(app, photos)
 moment = Moment(app)
+app.config['POSTS_PER_PAGE'] = 10
 
 
 subs = db.Table('subs',
@@ -50,6 +54,15 @@ subs = db.Table('subs',
     db.Column('event_id', db.Integer, db.ForeignKey('event.id'))
 )
 
+requesters = db.Table('friends_requests',
+    db.Column('request_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('requested_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+friends = db.Table('friend',
+    db.Column('friend_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('friend_w_id', db.Integer, db.ForeignKey('user.id'))
+)
 
 twitter_blueprint = make_twitter_blueprint(api_key='', api_secret='')
 
@@ -135,6 +148,9 @@ def github_logged_in(blueprint, token):
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), default=None)
+    birthday = db.Column(db.String(64), default=None)
+    country = db.Column(db.String(64), default=None)
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
     image_file = db.Column(db.String(20), default='https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1-744x744.jpg')
@@ -148,9 +164,102 @@ class User(UserMixin, db.Model):
     website = db.Column(db.String(100), default=None)
     operatingHours = db.Column(db.String(200), default=None)
     image = db.Column(db.String(200), default=None)
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    reply = db.relationship('Postreply', backref='author', lazy='dynamic')
+    about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     post = db.relationship("BusinessPosts", backref=db.backref("author"))
     subscriptions = db.relationship('Event', secondary=subs, passive_deletes=True, backref=db.backref('subscribers', lazy='dynamic'))
+
+    requested = db.relationship(
+        'User', secondary=requesters,
+        primaryjoin=(requesters.c.request_id == id),
+        secondaryjoin=(requesters.c.requested_id == id),
+        backref=db.backref('requesters', lazy='dynamic'), lazy='dynamic')
+    friend = db.relationship(
+        'User', secondary=friends,
+        primaryjoin=(friends.c.friend_id == id),
+        secondaryjoin=(friends.c.friend_w_id == id),
+        backref=db.backref('friends', lazy='dynamic'), lazy='dynamic')
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
+                                    backref='author', lazy='dynamic')
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+    last_message_read_time = db.Column(db.DateTime)
+    notifications = db.relationship('Notification', backref='user',
+                                    lazy='dynamic')
+
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
+
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def requests(self, user):
+        if not self.is_requesting(user):
+            self.requested.append(user)
+
+    def delete_request(self, user):
+        if self.is_requesting(user):
+            self.requested.remove(user)
+
+    def is_requesting(self, user):
+        return self.requested.filter(
+            requesters.c.requested_id == user.id
+        ).count() > 0
+
+    def accept_f(self, user):
+        if not self.is_friend(user):
+            self.friend.append(user)
+            user.friend.append(self)
+            self.requesters.remove(user)
+
+    def decline_f(self, user):
+        if not self.is_friend(user):
+            self.requesters.remove(user)
+
+    def is_friend(self, user):
+        return self.friend.filter(
+            friends.c.friend_w_id == user.id
+        ).count() > 0
+
+    def delete_friend(self, user):
+        if self.is_friend(user):
+            self.friend.remove(user)
+            user.friend.remove(self)
+
+    def friends_posts(self):
+        friend = Post.query.join(
+            friends, (friends.c.friend_id == Post.user_id)).filter(
+                friends.c.friend_w_id == self.id)
+        own = Post.query.filter_by(user_id=self.id)
+        return friend.union(own).order_by(Post.timestamp.desc())
+
+    def friends_u(self):
+        friend = User.query.join(
+            friends, (friends.c.friend_id == User.id)).filter(
+                friends.c.friend_w_id == self.id)
+        return friend.order_by(User.username.desc())
+
+    def requests_u(self):
+        request_u = User.query.join(
+            requesters, (requesters.c.request_id == User.id)).filter(
+                requesters.c.requested_id == self.id)
+        return request_u.order_by(User.username.desc())
 
     def set_brandName(self, brandName):
         self.brandName = brandName
@@ -186,6 +295,57 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f"User('{self.username}'), '{self.email}', '{self.image_file}'"
+
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    image = db.Column(db.String(140))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    replies = db.relationship('Postreply', backref='Postreply', lazy='dynamic')
+    likes = db.Column(db.Integer, default='0')
+
+    def like(self):
+        self.likes += 1
+
+    def __repr__(self):
+        return '<Post {}>'.format(self.body)
+
+
+class Postreply(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+    def __repr__(self):
+        return '<Reply {}>'.format(self.body)
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.body)
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
+
+
 
 
 class OAuth(OAuthConsumerMixin, db.Model):
@@ -279,6 +439,46 @@ class EditEventForm(FlaskForm):
     submit = SubmitField('Edit Event')
 
 
+class EditProfileForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    birthday = DateField('Birthday', format='%d/%m/%Y', validators=[DataRequired()])
+    country = StringField('Country', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=16)])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+
+    def __init__(self, original_username, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
+
+    def validate_username(self, username):
+        if username.data != self.original_username:
+            user = User.query.filter_by(username=self.username.data).first()
+            if user is not None:
+                raise ValidationError('Please use a different username.')
+
+
+class PostForm(FlaskForm):
+    post = TextAreaField('Say something', validators=[
+        DataRequired(), Length(min=1, max=140)])
+    photo = FileField(validators=[DataRequired(), FileRequired(),
+        FileAllowed(['jpg', 'png'], 'Images only!')])
+    submit = SubmitField('Submit')
+
+
+class ReplyForm(FlaskForm):
+    Reply = TextAreaField('Reply', validators=[
+        DataRequired(), Length(min=1, max=140)])
+    submit = SubmitField('Reply')
+
+
+class MessageForm(FlaskForm):
+    message = TextAreaField('Message', validators=[
+        DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+
+
+
 class joinEvent(FlaskForm):
     submit = SubmitField('Join Event')
 
@@ -323,6 +523,41 @@ def index():
         theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
         pointList.append(theURL)
     return render_template('map.html', eventList=eventList, event_locations=event_locations, event_markers_image=event_markers_image, pointList=pointList)
+
+
+@app.route('/index', methods=['GET', 'POST'])
+@login_required
+def index1():
+    form = PostForm()
+    form2 = ReplyForm()
+    if form.validate_on_submit():
+        p = form.photo.data
+        filename = secure_filename(p.filename)
+        p.save('static/uploads/' + filename)
+        post = Post(body=form.post.data, author=current_user, image=filename)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('index1'))
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.friends_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index1', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('index1', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('index1.html', title='Home', form=form, form2=form2, posts=posts.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('explore', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('explore', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template("index1.html", title='Explore', posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -375,10 +610,226 @@ def event():
     return render_template('createEvents.html', form=form)
 
 
-@app.route('/dashboard')
+@app.route('/user/<username>')
 @login_required
-def dashboard():
-    return render_template('dashboard.html', name=current_user.username, image_file=current_user.image_file)
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    posts = user.posts.order_by(Post.timestamp.desc()).paginate(
+        page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('user', username=user.username, page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('user.html', user=user, posts=posts.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        current_user.birthday = form.birthday.data
+        current_user.name = form.name.data
+        current_user.country = form.country.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+        form.name.data = current_user.name
+        form.country.data = current_user.country
+    return render_template('edit_profile.html', title='Edit Profile', form=form)
+
+@app.route('/request/<username>')
+@login_required
+def request1(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found'.format(username))
+        return redirect(url_for('index'))
+
+    if user == current_user:
+        flash('You cannot friend yourself.')
+        return redirect(url_for('user', username=username))
+
+    current_user.requests(user)
+    db.session.commit()
+    flash('You have friend requested {}!'.format(username))
+    return redirect(url_for('user', username=username))
+
+
+@app.route('/unrequest/<username>')
+@login_required
+def unrequest(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found'.format(username))
+        return redirect(url_for('index'))
+
+    if user == current_user:
+        flash('You cannot request yourself.')
+        return redirect(url_for('user', username=username))
+
+    current_user.delete_request(user)
+    db.session.commit()
+    flash('You have delete this request to {}!'.format(username))
+    return redirect(url_for('user', username=username))
+
+
+@app.route('/accept/<username>')
+@login_required
+def accept_friend(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found'.format(username))
+        return redirect(url_for('index'))
+
+    current_user.accept_f(user)
+    db.session.commit()
+    flash('{} is your friend now!'.format(username))
+    return redirect(url_for('user', username=current_user.username))
+
+
+@app.route('/decline/<username>')
+@login_required
+def decline_friend(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found'.format(username))
+        return redirect(url_for('index'))
+
+    current_user.decline_f(user)
+    db.session.commit()
+    flash('You have decline the friend request from {}!'.format(username))
+    return redirect(url_for('user', username=current_user.username))
+
+
+@app.route('/delete/<username>')
+@login_required
+def delete_friend(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found'.format(username))
+        return redirect(url_for('index'))
+
+    current_user.delete_friend(user)
+    db.session.commit()
+    flash('You are no longer friend with {}!'.format(username))
+    return redirect(url_for('user', username=current_user.username))
+
+
+@app.route('/friends/<username>')
+@login_required
+def friend_c(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    all_friends = user.friends_u().paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('friend_c', username=user.username, page=all_friends.next_num) \
+        if all_friends.has_next else None
+    prev_url = url_for('friend_c', username=user.username, page=all_friends.prev_num) \
+        if all_friends.has_prev else None
+    return render_template('friends.html', user=user, all_friends=all_friends.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/requests/<username>')
+@login_required
+def requests(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    all_requests = user.requests_u().paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('requests', username=user.username, page=all_requests.next_num) \
+        if all_requests.has_next else None
+    prev_url = url_for('requests', username=user.username, page=all_requests.prev_num) \
+        if all_requests.has_prev else None
+    return render_template('request.html', user=user, requests=all_requests.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/send_message/<recipient>', methods=['GET', 'POST'])
+@login_required
+def send_message(recipient):
+    user = User.query.filter_by(username=recipient).first_or_404()
+    form = MessageForm()
+    if form.validate_on_submit():
+        msg = Message(author=current_user, recipient=user,
+                      body=form.message.data)
+        db.session.add(msg)
+        user.add_notification('unread_message_count', user.new_messages())
+        db.session.commit()
+        flash('Your message has been sent.')
+        return redirect(url_for('user', username=recipient))
+    return render_template('send_message.html', title='Send Message',
+                           form=form, recipient=recipient)
+
+
+@app.route('/user/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('user_popup.html', user=user)
+
+
+@app.route('/messages')
+@login_required
+def messages():
+    current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification('unread_message_count', 0)
+    db.session.commit()
+    page = request.args.get('page', 1, type=int)
+    messages = current_user.messages_received.order_by(
+        Message.timestamp.desc()).paginate(
+            page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('messages', page=messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('messages', page=messages.prev_num) \
+        if messages.has_prev else None
+    return render_template('messages.html', messages=messages.items,
+                           next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/notifications')
+@login_required
+def notifications():
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'timestamp': n.timestamp
+    } for n in notifications])
+
+
+@app.route('/posts/<postid>', methods=["GET", "POST"])
+@login_required
+def posts(postid):
+    form = ReplyForm()
+    post = Post.query.filter_by(id=postid).first()
+    if form.validate_on_submit():
+        form = Postreply(body=form.Reply.data, author=current_user, post_id=postid)
+        db.session.add(form)
+        db.session.commit()
+        flash('Your reply is Live')
+        return redirect(url_for('posts', postid=post.id))
+    page = request.args.get('page', 1, type=int)
+    replies = post.replies.order_by(Postreply.id.asc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('posts', page=replies.next_num, postid=post.id) \
+        if replies.has_next else None
+    prev_url = url_for('posts', page=replies.prev_num, postid=post.id) \
+        if replies.has_prev else None
+    return render_template('post.html', post=post, form=form, reply_db=replies.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/post/<postid>')
+@login_required
+def liking(postid):
+    post = Post.query.filter_by(id=postid).first()
+    post.like()
+    db.session.commit()
+    return redirect(url_for('posts', postid=post.id))
 
 
 @app.route('/joinEvents')

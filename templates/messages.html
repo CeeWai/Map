@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>Messages</h1>
+    {% for post in messages %}
+        <table class="table table-hover">
+        <tr>
+            <td width="70px">
+{#                <a href="{{ url_for('posts', id=post.id) }}">#{{ post.id }}</a>#}
+                <a href="{{ url_for('user', username=post.author.username) }}">
+                    <img src="{{ post.author.image_file }}" style="width:70px; height:70px">
+                </a>
+            </td>
+            <td>
+                    <span class="user_popup">
+                        <a href="{{ url_for('user', username=post.author.username) }}">
+                            {{ post.author.username }}
+                        </a>
+                    </span>
+                said {{ moment(post.timestamp).fromNow() }}:
+                <br>
+                {{ post.body }}
+            </td>
+            <td style="vertical-align: bottom; text-align: right;">
+                <a href="{{ url_for('send_message', recipient=post.author.username)}}">Reply</a>
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> Newer messages
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older messages <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}

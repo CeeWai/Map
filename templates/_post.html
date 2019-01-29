@@ -1,0 +1,26 @@
+<table class="table table-hover">
+        <tr>
+            <td width="70px">
+{#                <a href="{{ url_for('posts', id=post.id) }}">#{{ post.id }}</a>#}
+                <a href="{{ url_for('user', username=post.author.username) }}">
+                    <img src="{{ post.author.image_file }}" style="width:70px; height:70px">
+                </a>
+            </td>
+            <td>
+                    <span class="user_popup">
+                        <a href="{{ url_for('user', username=post.author.username) }}">
+                            {{ post.author.username }}
+                        </a>
+                    </span>
+                said {{ moment(post.timestamp).fromNow() }}:
+                <br>
+                {{ post.body }}
+            </td>
+            <td style="text-align: right; vertical-align: bottom">
+                <p>Likes: {{ post.likes }}</p>
+                <a href="{{ url_for('liking', postid=post.id) }}">Like</a>
+                <br>
+                <a href="{{ url_for('posts', postid=post.id) }}">Check Replies and attachment (Images)</a>
+            </td>
+        </tr>
+    </table>
