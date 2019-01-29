@@ -520,7 +520,10 @@ def index():
         g = geocoder.mapbox(event.area, key=ACCESS_KEY)
         thelng = str(g.lng)
         thelat = str(g.lat)
-        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        #theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        ip = geocoder.ip('me')
+        reversegeocode = geocoder.mapbox([ip.lat, ip.lng], method='reverse', key=ACCESS_KEY)
+        theURL = 'https://www.google.com/maps/dir/?api=1&origin=' + reversegeocode.address + '&destination=' + event.area + '&travelmode=walking'
         pointList.append(theURL)
     return render_template('map.html', eventList=eventList, event_locations=event_locations, event_markers_image=event_markers_image, pointList=pointList)
 
@@ -842,7 +845,10 @@ def joinEvents():
         g = geocoder.mapbox(event.area, key=ACCESS_KEY)
         thelng = str(g.lng)
         thelat = str(g.lat)
-        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        #theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        ip = geocoder.ip('me')
+        reversegeocode = geocoder.mapbox([ip.lat, ip.lng], method='reverse', key=ACCESS_KEY)
+        theURL = 'https://www.google.com/maps/dir/?api=1&origin=' + reversegeocode.address + '&destination=' + event.area + '&travelmode=walking'
         pointList.append(theURL)
     print(pointList)
     return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, pointList=pointList)
@@ -922,7 +928,10 @@ def showList(eventid):
         g = geocoder.mapbox(event.area, key=ACCESS_KEY)
         thelng = str(g.lng)
         thelat = str(g.lat)
-        theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        #theURL = 'https://www.google.com/maps?q=' + thelat + ',' + thelng + '&ll=' + thelat + ',' + thelng + '&z=13'
+        ip = geocoder.ip('me')
+        reversegeocode = geocoder.mapbox([ip.lat, ip.lng], method='reverse', key=ACCESS_KEY)
+        theURL = 'https://www.google.com/maps/dir/?api=1&origin=' + reversegeocode.address + '&destination=' + event.area + '&travelmode=walking'
         pointList.append(theURL)
     return render_template('joinEvents.html', eventList=eventList, firstEvent=firstEvent, theOpen=theOpen, pointList=pointList)
 

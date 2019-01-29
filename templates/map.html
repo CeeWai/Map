@@ -192,7 +192,7 @@ var geojson = {
 {% if current_user.is_authenticated %}
 	// Test Marker (Hover)
 	map.on('load', function() {
-		map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png', function(error, image) {
+		map.loadImage('https://www.aoodemo.com/media/profile-image-circle%203.png', function(error, image) {
 			if (error) throw error;
 			map.addImage('cat', image);
 			map.addLayer({
@@ -206,7 +206,7 @@ var geojson = {
 								[{
 								"type": "Feature",
 								"properties": {
-									"description": '<figure class="snip1559"><div class="profile-image"><img src="http://pm1.narvii.com/5996/19c1ec00df5e690a080025bf9b75d1319d564249_00.jpg" alt="profile-sample2" /></div><figcaption><h3>Placeholder Name</h3><h5>Placeholder Rank</h5><p>Place holder for description?</p></figcaption></figure>',
+									"description": '<figure class="snip1559"><div class="profile-image"><img src="https://www.aoodemo.com/media/profile-image-circle%203.png" alt="profile-sample2" /></div><figcaption><h3>Placeholder Name</h3><h5>Placeholder Rank</h5><p>Place holder for description?</p></figcaption></figure>',
 									"icon": "cat"
 								},
 								"geometry": {
