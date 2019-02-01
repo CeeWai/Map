@@ -6,29 +6,45 @@
     <link rel="stylesheet" href="/static/joinEvents.css">
     <link rel="stylesheet" href="/static/menu.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <meta property="og:url"           content="http://127.0.0.1/5000/joinEvents" />
+  <meta property="og:title"         content="Join Events" />
+  <meta property="og:description"   content="Share your events!" />
+    <meta name="og:type" content="website">
+    <meta name="og:image" content="/static/LéPAK.png">
+    <meta name="og:site_name" content="LéPAK">
+    <link rel="me" href="https://twitter.com/twitterdev">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 <div>
-<!-- Menu -->
-<div class="primary-nav">
+    <!-- Menu -->
+    <div class="primary-nav">
 
-	<button href="#" class="hamburger open-panel nav-toggle">
-<span class="screen-reader-text">Menu</span>
-</button>
+        <button href="#" class="hamburger open-panel nav-toggle">
+            <span class="screen-reader-text">Menu</span>
+        </button>
 
-	<nav role="navigation" class="menu">
+        <nav role="navigation" class="menu">
 
-		<a href="/" class="logotype">LÉ<span>PAK</span></a>
+            <a href="/" class="logotype">LÉ<span>PAK</span></a>
 
-		<div class="overflow-container">
+            <div class="overflow-container">
 
-			<ul class="menu-dropdown">
+                <ul class="menu-dropdown">
 
-				<li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+                    <li><a href="/">Map</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
 
-				<li class="menu-hasdropdown">
-					<a href="/dashboard">Profile</a>
-					<span class="icon">
+                    <li class="menu-hasdropdown">
+                        <a href="/dashboard">Profile</a>
+                        <span class="icon">
 						{% if current_user.is_authenticated %}
 							<img src="{{ current_user.image_file }}" style="height: 100%; border-radius: 100%;"/>
 						{% else %}
@@ -36,223 +52,242 @@
 						{% endif %}
 					</span>
 
-					<label title="toggle menu" for="settings">
-        <span class="downarrow"><i class="fa fa-caret-down"></i></span>
-      </label>
-					<input type="checkbox" class="sub-menu-checkbox" id="settings" />
+                        <label title="toggle menu" for="settings">
+                            <span class="downarrow"><i class="fa fa-caret-down"></i></span>
+                        </label>
+                        <input type="checkbox" class="sub-menu-checkbox" id="settings" />
 
-					<ul class="sub-menu-dropdown">
-						{% if current_user.is_authenticated %}
-							<li><a href="/index">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
-							<li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
+                        <ul class="sub-menu-dropdown">
+                            {% if current_user.is_authenticated %}
+                            <li><a href="/index">Dashboard</a><span class="icon"><i class="fas fa-tachometer-alt"></i></span></li>
+                            <li><a href="">Friends</a><span class="icon"><i class="fas fa-user-friends"></i></span></li>
                             <li><a href="/createEvents">Make Your Event</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
-							<li><a href="/forms">Create Listings</a><span class="icon"><i class="fas fa-clipboard-list"></i></span></li>
+                            <li><a href="/forms">Create Listings</a><span class="icon"><i class="fas fa-clipboard-list"></i></span></li>
 
-						{% else %}
-							<li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
-						{% endif %}
-						{% if current_user.is_authenticated %}
+                            {% else %}
+                            <li><a href="/login">Login</a><span class="icon"><i class="fas fa-sign-in-alt"></i></span></li>
+                            {% endif %}
+                            {% if current_user.is_authenticated %}
                             <li><a href="{{ url_for('logout') }}">Logout</a><span class="icon"><i class="fas fa-sign-out-alt"></i></span></li>
-                        {% endif %}
-					</ul>
-				</li>
+                            {% endif %}
+                        </ul>
+                    </li>
 
-				<li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
+                    <li><a href="/joinEvents">Join Events</a><span class="icon"><i class="fas fa-calendar-alt"></i></span></li>
 
-                {% if current_user.is_authenticated %}
-						<li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
-				{% endif %}
+                    {% if current_user.is_authenticated %}
+                    <li><a href="/theBusiness">Business</a><span class="icon"><i class="fas fa-map-marked-alt"></i></span></li>
+                    {% endif %}
 
-                <li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
+                    <li><a href="/about_us">About Us</a><span class="icon"><i class="fas fa-info-circle"></i></span></li>
 
-                <li><a href="/listings">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>
+                    <li><a href="/listings">Listings</a><span class="icon"><i class="fas fa-list-ul"></i></span></li>
 
-			</ul>
+                </ul>
 
-		</div>
+            </div>
 
-	</nav>
+        </nav>
 
-</div>
-<!-- /Menu -->
-  <div class="row">
-      <div class="cd-popup" role="alert" style="z-index: 9999;">
-        <div class="cd-popup-container">
-        {% if eventList|length > 0 %}
-            {% if firstEvent.subscribers.all()|length >= 1 %}
+    </div>
+    <!-- /Menu -->
+    <div class="row">
+        <div class="cd-popup" role="alert" style="z-index: 9999;">
+            <div class="cd-popup-container">
+                {% if eventList|length > 0 %}
+                {% if firstEvent.subscribers.all()|length >= 1 %}
                 {% for subber in firstEvent.subscribers.all() %}
-                    <div class='card'>
-                      <div id='left' style="background-image: url({{ subber.image_file }});"></div>
-                      <div id='right'>
+                <div class='card'>
+                    <div id='left' style="background-image: url({{ subber.image_file }});"></div>
+                    <div id='right'>
                         <span class='username'>{{ subber.username }}</span>
                         {{ subber.email }}
                         <p style='color: rgba(0,0,0,0.5); padding: 0 !important; '>
-                          Posts:
-                          <span class='right'>259</span>
-                          <br>
-                          Threads:
-                          <span class='right'>14</span>
-                          <br>
-                          Reputation:
-                          <span class='right'>5</span>
+                            Posts:
+                            <span class='right'>259</span>
+                            <br>
+                            Threads:
+                            <span class='right'>14</span>
+                            <br>
+                            Reputation:
+                            <span class='right'>5</span>
                         </p>
-                      </div>
                     </div>
+                </div>
                 {% endfor %}
-            {% else %}
-               <p>This is where the people attending will show up :D</p>
-            {% endif %}
-            <a href="#0" class="cd-popup-close img-replace">Close</a>
-        </div> <!-- cd-popup-container -->
-    </div> <!-- cd-popup -->
-{% endif %}
-{% if eventList|length > 0 %}
-    {% for events in eventList %}
+                {% else %}
+                <p>This is where the people attending will show up :D</p>
+                {% endif %}
+                <a href="#0" class="cd-popup-close img-replace">Close</a>
+            </div> <!-- cd-popup-container -->
+        </div> <!-- cd-popup -->
+        {% endif %}
+        {% if eventList|length > 0 %}
+        {% for events in eventList %}
         <div class="container">
 
-      <div class="card-media">
-          <!-- media container -->
-            <div class="card-media-object-container">
+            <div class="card-media">
+                <!-- media container -->
+                <div class="card-media-object-container">
                 <span class="cd-popup-trigger card-media-object-tag subtle" style="background-color: white; z-index: 999;">
                     <a href="/joinEvents/attendingList/{{ events.id }}" style="text-decoration: none; z-index: 999;">?</a>
                 </span>
-              <div class="card-media-object" style="background-image: url(/static/{{events.event_image}});"></div>
-              {% if events.owner_id == current_user.id %}
-                <span style="z-index:999;" class="card-media-object-tag subtle"><a style="z-index:999;" href='/joinEvents/delEvent/{{ events.id }}'>Delete <i class="far fa-trash-alt"></i></a></span>
-                <span style="z-index:999;" class="card-media-object-tag subtle edit_event"><a style="z-index:999;" href='/joinEvents/editEvents/{{ events.id }}'>Edit <i class="far fa-edit"></i></a></span>
-              {% endif %}
+                    <div class="card-media-object" style="background-image: url(/static/{{events.event_image}});"></div>
+                    {% if events.owner_id == current_user.id %}
+                    <span style="z-index:999;" class="card-media-object-tag subtle"><a style="z-index:999;" href='/joinEvents/delEvent/{{ events.id }}'>Delete <i class="far fa-trash-alt"></i></a></span>
+                    <span style="z-index:999;" class="card-media-object-tag subtle edit_event"><a style="z-index:999;" href='/joinEvents/editEvents/{{ events.id }}'>Edit <i class="far fa-edit"></i></a></span>
+                    {% endif %}
 
-              <ul class="card-media-object-social-list">
-              {% if events.subscribers.all()|length < 5 %}
-                  {% for sub in events.subscribers.all() %}
+                    <ul class="card-media-object-social-list">
+                        {% if events.subscribers.all()|length < 5 %}
+                        {% for sub in events.subscribers.all() %}
                         <li>
                             <img src="{{ sub.image_file }}" class="" style="width: 100%;">
                         </li>
-                  {% endfor %}
-              {% else %}
-                  {% for j in range(4) %}
-                    <li>
-                        <img src="{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
-                    </li>
-                  {% endfor %}
-                    <li class="card-media-object-social-list-item-additional">
-                        <span>+{{ events.subscribers.all()|length - 4 }}</span>
-                    </li>
-              {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        {% for j in range(4) %}
+                        <li>
+                            <img src="{{ events.subscribers.all()[j].image_file }}" class="" style="width: 100%;">
+                        </li>
+                        {% endfor %}
+                        <li class="card-media-object-social-list-item-additional">
+                            <span>+{{ events.subscribers.all()|length - 4 }}</span>
+                        </li>
+                        {% endif %}
 
-              </ul>
-            </div>
-            <!-- body container -->
-            <div class="card-media-body">
-              <div class="card-media-body-top">
-                <span class="subtle">{{ events.start_date }}-{{ events.end_date }}</span>
-                <div class="card-media-body-top-icons u-float-right">
-
+                    </ul>
                 </div>
-              </div>
-              <span class="card-media-body-heading">{{ events.desc }}</span>
-              <div class="card-media-body-supporting-bottom">
-                <span class="card-media-body-supporting-bottom-text subtle">{{ events.area }}</span>
-                <span class="card-media-body-supporting-bottom-text subtle u-float-right">{{ events.title }}</span>
-              </div>
-              <div class="card-media-body-supporting-bottom card-media-body-supporting-bottom-reveal">
-                <span class="card-media-body-supporting-bottom-text subtle">#Music #Party</span>
-                  {% if current_user in events.subscribers.all() %}
-                  <!-- Sharingbutton Facebook -->
-                    <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents&quote={{ events.desc }}" title="Share on Facebook" target="_blank" rel="noopener" aria-label="" >
-                      <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z"/></svg>
-                        </div>
-                      </div>
-                    </a>
+                <!-- body container -->
+                <div class="card-media-body">
+                    <div class="card-media-body-top">
+                        <span class="subtle">{{ events.start_date }}-{{ events.end_date }}</span>
+                        <div class="card-media-body-top-icons u-float-right">
 
-                    <!-- Sharingbutton Google+ -->
-                    <a class="resp-sharing-button__link" href="https://plus.google.com/share?url=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents" target="_blank" rel="noopener" aria-label="">
-                      <div class="resp-sharing-button resp-sharing-button--google resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.37 12.93c-.73-.52-1.4-1.27-1.4-1.5 0-.43.03-.63.98-1.37 1.23-.97 1.9-2.23 1.9-3.57 0-1.22-.36-2.3-1-3.05h.5c.1 0 .2-.04.28-.1l1.36-.98c.16-.12.23-.34.17-.54-.07-.2-.25-.33-.46-.33H7.6c-.66 0-1.34.12-2 .35-2.23.76-3.78 2.66-3.78 4.6 0 2.76 2.13 4.85 5 4.9-.07.23-.1.45-.1.66 0 .43.1.83.33 1.22h-.08c-2.72 0-5.17 1.34-6.1 3.32-.25.52-.37 1.04-.37 1.56 0 .5.13.98.38 1.44.6 1.04 1.84 1.86 3.55 2.28.87.23 1.82.34 2.8.34.88 0 1.7-.1 2.5-.34 2.4-.7 3.97-2.48 3.97-4.54 0-1.97-.63-3.15-2.33-4.35zm-7.7 4.5c0-1.42 1.8-2.68 3.9-2.68h.05c.45 0 .9.07 1.3.2l.42.28c.96.66 1.6 1.1 1.77 1.8.05.16.07.33.07.5 0 1.8-1.33 2.7-3.96 2.7-1.98 0-3.54-1.23-3.54-2.8zM5.54 3.9c.33-.38.75-.58 1.23-.58h.05c1.35.05 2.64 1.55 2.88 3.35.14 1.02-.08 1.97-.6 2.55-.32.37-.74.56-1.23.56h-.03c-1.32-.04-2.63-1.6-2.87-3.4-.13-1 .08-1.92.58-2.5zM23.5 9.5h-3v-3h-2v3h-3v2h3v3h2v-3h3"/></svg>
                         </div>
-                      </div>
-                    </a>
+                    </div>
+                    <span class="card-media-body-heading">{{ events.desc }}</span>
+                    <div class="card-media-body-supporting-bottom">
+                        <span class="card-media-body-supporting-bottom-text subtle">{{ events.area }}</span>
+                        <span class="card-media-body-supporting-bottom-text subtle u-float-right">{{ events.title }}</span>
+                    </div>
+                    <div class="card-media-body-supporting-bottom card-media-body-supporting-bottom-reveal">
+                        {% if current_user in events.subscribers.all() %}
+<!--
+                        &lt;!&ndash; Sharingbutton Facebook &ndash;&gt;
+                        <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents&quote={{ events.desc }}" title="Share on Facebook" target="_blank" rel="noopener" aria-label="" >
+                            <div class="resp-sharing-button resp-sharing-button&#45;&#45;facebook resp-sharing-button&#45;&#45;small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon&#45;&#45;solid">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z"/></svg>
+                            </div>
+                            </div>
+                        </a>
 
-                    <!-- Sharingbutton E-Mail -->
-                    <a class="resp-sharing-button__link" href="mailto:?subject={{ events.desc }}&amp;body=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents" target="_self" rel="noopener" aria-label="">
-                      <div class="resp-sharing-button resp-sharing-button--email resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 4H2C.9 4 0 4.9 0 6v12c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM7.25 14.43l-3.5 2c-.08.05-.17.07-.25.07-.17 0-.34-.1-.43-.25-.14-.24-.06-.55.18-.68l3.5-2c.24-.14.55-.06.68.18.14.24.06.55-.18.68zm4.75.07c-.1 0-.2-.03-.27-.08l-8.5-5.5c-.23-.15-.3-.46-.15-.7.15-.22.46-.3.7-.14L12 13.4l8.23-5.32c.23-.15.54-.08.7.15.14.23.07.54-.16.7l-8.5 5.5c-.08.04-.17.07-.27.07zm8.93 1.75c-.1.16-.26.25-.43.25-.08 0-.17-.02-.25-.07l-3.5-2c-.24-.13-.32-.44-.18-.68s.44-.32.68-.18l3.5 2c.24.13.32.44.18.68z"/></svg>
-                        </div>
-                      </div>
-                    </a>
-                  {% endif %}
-                  <a href="{{ pointList[loop.index - 1] }}">Directions</a>
-                 {% if events.owner_id != current_user.id %}
-                     {% if current_user not in events.subscribers.all() %}
+                        &lt;!&ndash; Sharingbutton Google+ &ndash;&gt;
+                        <a class="resp-sharing-button__link" href="https://plus.google.com/share?url=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents" target="_blank" rel="noopener" aria-label="">
+                            <div class="resp-sharing-button resp-sharing-button&#45;&#45;google resp-sharing-button&#45;&#45;small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon&#45;&#45;solid">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.37 12.93c-.73-.52-1.4-1.27-1.4-1.5 0-.43.03-.63.98-1.37 1.23-.97 1.9-2.23 1.9-3.57 0-1.22-.36-2.3-1-3.05h.5c.1 0 .2-.04.28-.1l1.36-.98c.16-.12.23-.34.17-.54-.07-.2-.25-.33-.46-.33H7.6c-.66 0-1.34.12-2 .35-2.23.76-3.78 2.66-3.78 4.6 0 2.76 2.13 4.85 5 4.9-.07.23-.1.45-.1.66 0 .43.1.83.33 1.22h-.08c-2.72 0-5.17 1.34-6.1 3.32-.25.52-.37 1.04-.37 1.56 0 .5.13.98.38 1.44.6 1.04 1.84 1.86 3.55 2.28.87.23 1.82.34 2.8.34.88 0 1.7-.1 2.5-.34 2.4-.7 3.97-2.48 3.97-4.54 0-1.97-.63-3.15-2.33-4.35zm-7.7 4.5c0-1.42 1.8-2.68 3.9-2.68h.05c.45 0 .9.07 1.3.2l.42.28c.96.66 1.6 1.1 1.77 1.8.05.16.07.33.07.5 0 1.8-1.33 2.7-3.96 2.7-1.98 0-3.54-1.23-3.54-2.8zM5.54 3.9c.33-.38.75-.58 1.23-.58h.05c1.35.05 2.64 1.55 2.88 3.35.14 1.02-.08 1.97-.6 2.55-.32.37-.74.56-1.23.56h-.03c-1.32-.04-2.63-1.6-2.87-3.4-.13-1 .08-1.92.58-2.5zM23.5 9.5h-3v-3h-2v3h-3v2h3v3h2v-3h3"/></svg>
+                            </div>
+                            </div>
+                        </a>
 
-                      <a href="/joinEvents/jointheparty/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">JOIN NOW!</a>
-                     {% else %}
+                        &lt;!&ndash; Sharingbutton E-Mail &ndash;&gt;
+                        <a class="resp-sharing-button__link" href="mailto:?subject={{ events.desc }}&amp;body=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents" target="_self" rel="noopener" aria-label="">
+                            <div class="resp-sharing-button resp-sharing-button&#45;&#45;email resp-sharing-button&#45;&#45;small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon&#45;&#45;solid">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 4H2C.9 4 0 4.9 0 6v12c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM7.25 14.43l-3.5 2c-.08.05-.17.07-.25.07-.17 0-.34-.1-.43-.25-.14-.24-.06-.55.18-.68l3.5-2c.24-.14.55-.06.68.18.14.24.06.55-.18.68zm4.75.07c-.1 0-.2-.03-.27-.08l-8.5-5.5c-.23-.15-.3-.46-.15-.7.15-.22.46-.3.7-.14L12 13.4l8.23-5.32c.23-.15.54-.08.7.15.14.23.07.54-.16.7l-8.5 5.5c-.08.04-.17.07-.27.07zm8.93 1.75c-.1.16-.26.25-.43.25-.08 0-.17-.02-.25-.07l-3.5-2c-.24-.13-.32-.44-.18-.68s.44-.32.68-.18l3.5 2c.24.13.32.44.18.68z"/></svg>
+                            </div>
+                            </div>
+                        </a>-->
+                        {% endif %}
+                        {% if current_user in events.subscribers.all() %}
+<!--                            &lt;!&ndash; Go to www.addthis.com/dashboard to customize your tools &ndash;&gt;
+                            <div class="addthis_inline_share_toolbox_te9f"></div>-->
+                            <div class="fb-share-button" style="display: inline-flex;" data-href="http://127.0.0.1:5000/joinEvents" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A5000%2FjoinEvents&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
+                            <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text={{ events.desc }}" data-hashtags="LéPAK" style="margin-top: 3px;">Tweet</a>
+                            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                            <g:plus action="share"></g:plus>
+                                <script>
+                                  window.___gcfg = {
+                                    lang: 'en-US',
+                                    parsetags: 'onload'
+                                  };
+                                </script>
+
+                        {% endif %}
+                            <a href="{{ pointList[loop.index - 1] }}" >Directions</a>
+
+                        {% if events.owner_id != current_user.id %}
+                        {% if current_user not in events.subscribers.all() %}
+
+                        <a href="/joinEvents/jointheparty/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">JOIN NOW!</a>
+                        {% else %}
 
                         <a href="/joinEvents/unattend/{{ events.id }}" class="card-media-body-supporting-bottom-text card-media-link u-float-right">UNATTEND</a>
-                     {% endif %}
-                  {% endif %}
-              </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
     </div>
     {% endfor %}
-{% else %}
+    {% else %}
     <h4 style="margin-left:10em;">There aren't any events yet.</h4>
-{% endif %}
-<script>
-$('.portfolioFilter a').click(function() {
-    $('.portfolioFilter .current').removeClass('current');
-    $(this).addClass('current');
-});
+    {% endif %}
+    <script>
+        $('.portfolioFilter a').click(function() {
+            $('.portfolioFilter .current').removeClass('current');
+            $(this).addClass('current');
+        });
 
-$(document).ready(function($) {
-    //open popup
-    {% if theOpen == True %}
-        $('.cd-popup').addClass('is-visible');
-    {%endif%}
-});
+        $(document).ready(function($) {
+            //open popup
+            {% if theOpen == True %}
+            $('.cd-popup').addClass('is-visible');
+            {%endif%}
+        });
 
-jQuery(document).ready(function($){
-	/*open popup
-	$('.cd-popup-trigger').on('click', function(event){
-		event.preventDefault();
-		$('.cd-popup').addClass('is-visible');
-	});
-	*/
+        jQuery(document).ready(function($){
+            /*open popup
+            $('.cd-popup-trigger').on('click', function(event){
+                event.preventDefault();
+                $('.cd-popup').addClass('is-visible');
+            });
+            */
 
-	//close popup
-	$('.cd-popup').on('click', function(event){
-		if( $(event.target).is('.cd-popup-close') || $(event.target).is('.cd-popup') ) {
-			event.preventDefault();
-			$(this).removeClass('is-visible');
-		}
-	});
-	//close popup when clicking the esc keyboard button
-	$(document).keyup(function(event){
-    	if(event.which=='27'){
-    		$('.cd-popup').removeClass('is-visible');
-	    }
-    });
-});
+            //close popup
+            $('.cd-popup').on('click', function(event){
+                if( $(event.target).is('.cd-popup-close') || $(event.target).is('.cd-popup') ) {
+                    event.preventDefault();
+                    $(this).removeClass('is-visible');
+                }
+            });
+            //close popup when clicking the esc keyboard button
+            $(document).keyup(function(event){
+                if(event.which=='27'){
+                    $('.cd-popup').removeClass('is-visible');
+                }
+            });
+        });
 
-$('div.resp-sharing-button__icon resp-sharing-button__icon--solid svg').css('font-size', '30')
+        $('div.resp-sharing-button__icon resp-sharing-button__icon--solid svg').css('font-size', '30')
 
 
-</script>
-  <div id="fb-root"></div>
-  <script>(function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
+    </script>
 
-<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script>
+        $('div#widget').css('margin-top', '4px');
+        $('.fb_iframe_widget').attr('style', 'display: inline-flex !important');
+        $('.fb-share-button').css('display', 'inline-flex');
 
-  </div>
+    </script>
+
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5c52aac99c4241c8"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+
+</div>
 </div>
 </body>
 </html>
