@@ -49,7 +49,7 @@ gpxpy==1.1.1
 greenlet==0.4.15
 gunicorn==19.9.0
 haversine==0.4.5
-httplib2==0.12.0
+httplib2==0.18.0
 idna==2.7
 inflection==0.3.1
 iniherit==0.3.9
