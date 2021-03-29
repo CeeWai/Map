@@ -97,7 +97,7 @@ protobuf3-to-dict==0.1.5
 pycparser==2.19
 pycrypt==0.7.2
 pycryptodomex==3.7.3
-Pygments==2.2.0
+Pygments==2.7.4
 pymongo==3.7.2
 PySocks==1.6.8
 python-dateutil==2.7.3
